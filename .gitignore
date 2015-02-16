@@ -1,0 +1,13 @@
+## Java
+# From <https://github.com/github/gitignore/blob/master/Java.gitignore>
+
+*.class
+*.jar
+
+
+## Gradle
+# From <https://github.com/github/gitignore/blob/master/Gradle.gitignore>
+
+.gradle
+build/
+!gradle-wrapper.jar
