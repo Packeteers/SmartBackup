@@ -21,9 +21,12 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.util.ChatComponentText;
 
+import java.util.List;
+
 public class BackupCommand extends CommandBase {
 	/**
 	 * Complain to the sender that they haven't entered the command correctly.
+	 *
 	 * @param sender ICommandSender to complain to.
 	 */
 	private void sendUsage(ICommandSender sender) {
@@ -76,5 +79,12 @@ public class BackupCommand extends CommandBase {
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
 		return "/" + this.getCommandName() + " <help|version>";
+	}
+
+	@Override
+	public List addTabCompletionOptions(ICommandSender sender, String[] command) {
+		if (command.length > 1)
+			return null;
+		return getListOfStringsMatchingLastWord(command, "help", "version");
 	}
 }
