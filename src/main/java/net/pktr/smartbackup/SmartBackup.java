@@ -27,6 +27,8 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 public class SmartBackup {
 	public static final String MOD_ID = "smartbackup";
 	public static final String MOD_NAME = "SmartBackup";
+
+	// These are filled in by the build process.
 	public static final String VERSION = "$VERSION$";
 	public static final String SOURCE_REVISION = "$SOURCE_REVISION$";
 	public static final String BUILD_TIMESTAMP = "$BUILD_TIMESTAMP$";
