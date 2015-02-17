@@ -24,9 +24,10 @@ sourceCompatibility = "1.8"
 archivesBaseName = "SmartBackup"
 
 /**
- * Gets a string representing the revision of the source. This includes the branch we're on (or "DETACHED-" if not on a
- * branch), the 7-character revision string, and "-modified" if there are uncommitted changes. If git isn't present or
- * we can't get the revision string, "UNKNOWN" is returned.
+ * Gets a string representing the revision of the source. This includes the branch we're on
+ * (or "DETACHED-" if not on a branch), the 7-character revision string, and "-modified" if there
+ * are uncommitted changes. If git isn't present or we can't get the revision string,
+ * "UNKNOWN" is returned.
  * @return A string representing the source revision or "UNKNOWN"
  */
 def String getSourceRevision() {
@@ -41,7 +42,7 @@ def String getSourceRevision() {
     // Append a branch name (or DETACHED if in detached-HEAD state)
     def branch = "git symbolic-ref --short -q HEAD".execute()
     branch.waitFor()
-    // Assume nonzero is detached-HEAD. If  we're not in a git repo, the below revision command will catch it.
+    // Assume nonzero is detached-HEAD. If there is no git repo, the revision command will catch it.
     if (branch.exitValue() != 0)
         versionString += "DETACHED-"
     else
@@ -72,7 +73,8 @@ minecraft {
     replaceIn "net/pktr/smartbackup/SmartBackup.java"
     replace '$VERSION$', project.version
     replace '$SOURCE_REVISION$', getSourceRevision()
-    replace '$BUILD_TIMESTAMP$', new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone("UTC"))
+    replace '$BUILD_TIMESTAMP$', new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'",
+            TimeZone.getTimeZone("UTC"))
 }
 
 processResources {
