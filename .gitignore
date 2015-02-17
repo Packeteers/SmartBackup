@@ -11,3 +11,9 @@
 .gradle
 build/
 !gradle-wrapper.jar
+
+
+## Project-specific
+
+# Ignore Minecraft Run Directory
+minecraft/
