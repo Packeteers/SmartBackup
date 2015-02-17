@@ -1,0 +1,16 @@
+[
+  {
+    "modid": "smartbackup",
+    "name": "SmartBackup",
+    "description": "Used to backup the game's world data.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://github.com/Packeteers/SmartBackup/",
+    "updateUrl": "",
+    "authorList": ["LuaMilkshake"],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

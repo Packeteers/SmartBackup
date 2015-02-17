@@ -19,26 +19,78 @@ apply plugin: 'forge'
 
 version = "0.1"
 group = "net.pktr.smartbackup"
+targetCompatibility = "1.8"
+sourceCompatibility = "1.8"
 archivesBaseName = "SmartBackup"
+
+/**
+ * Gets a string representing the revision of the source. This includes the branch we're on (or "DETACHED-" if not on a
+ * branch), the 7-character revision string, and "-modified" if there are uncommitted changes. If git isn't present or
+ * we can't get the revision string, "UNKNOWN" is returned.
+ * @return A string representing the source revision or "UNKNOWN"
+ */
+def String getSourceRevision() {
+    String versionString = ""
+
+    // If there is a nonzero return for git-version, assume git isn't present.
+    def gitCheck = "git --version".execute()
+    gitCheck.waitFor()
+    if (gitCheck.exitValue() != 0)
+        return "UNKNOWN"
+
+    // Append a branch name (or DETACHED if in detached-HEAD state)
+    def branch = "git symbolic-ref --short -q HEAD".execute()
+    branch.waitFor()
+    // Assume nonzero is detached-HEAD. If  we're not in a git repo, the below revision command will catch it.
+    if (branch.exitValue() != 0)
+        versionString += "DETACHED-"
+    else
+        versionString += branch.text.trim() + "-"
+
+    // This command gets the git revision in short-form (7 hex characters).
+    def revision = "git rev-parse --short HEAD".execute()
+    revision.waitFor()
+    if (revision.exitValue() != 0)
+        return "UNKNOWN"
+    versionString += revision.text.trim()
+
+    // This command lists changes, one on each line. If there are no changes, the output is empty.
+    def modified = "git status --porcelain".execute()
+    modified.waitFor()
+    if (modified.exitValue() != 0)
+        return "UNKNOWN"
+    if (modified.text.trim() != "")
+        versionString += "-modified"
+
+    return versionString
+}
 
 minecraft {
     version = "1.7.10-10.13.2.1291"
     runDir = "minecraft"
-}
 
-dependencies {
+    replaceIn "net/pktr/smartbackup/SmartBackup.java"
+    replace '$VERSION$', project.version
+    replace '$SOURCE_REVISION$', getSourceRevision()
+    replace '$BUILD_TIMESTAMP$', new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone("UTC"))
 }
 
 processResources {
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
 
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand 'version':project.version, 'mcversion':project.minecraft.version
+    // Copy mcmod.info from resources, replacing relevant variables
+    from (sourceSets.main.resources.srcDirs) {
+        include "mcmod.info"
+        expand "version": project.version, "mcversion": project.minecraft.version
     }
 
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
+    // Copy resources other than mcmod.info
+    from (sourceSets.main.resources.srcDirs) {
+        exclude "mcmod.info"
+    }
+
+    from (projectDir) {
+        include "LICENSE", "README.md"
     }
 }
