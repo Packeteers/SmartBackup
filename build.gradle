@@ -18,7 +18,7 @@ buildscript {
 apply plugin: 'forge'
 
 version = "0.1"
-group = "com.luamilkshake.smartbackup"
+group = "net.pktr.smartbackup"
 archivesBaseName = "smartbackup"
 
 minecraft {
