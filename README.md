@@ -21,7 +21,7 @@ copy-based backup. It also means that the time required to do a backup is less
 than a copy-based backup since less data is written to disk.
 
 While this is typically better than copying the whole world for each backup,
-there are a couple of reasons why you might want to use a copy-based backup.
+there are a couple of reasons why you might want to use a copy-based backup:
 
 * Your filesystem does not support hard links.
 * On-disk corruption of world data (while unlikely, still possible unless the
