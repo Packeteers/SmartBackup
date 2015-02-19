@@ -40,7 +40,9 @@ public class BackupCommand extends CommandBase {
 			throw new CommandException("Not yet implemented");
 		case "help":
 			String[] helpText = {"SmartBackup commands:",
+			    "  archive - Not yet implemented.",
 			    "  help - Show a list of valid subcommands",
+			    "  snapshot - Not yet implemented.",
 			    "  version - Show version information"
 			};
 			for (String line : helpText)
