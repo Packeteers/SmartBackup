@@ -17,6 +17,7 @@
 package net.pktr.smartbackup;
 
 import net.minecraft.command.CommandBase;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.util.ChatComponentText;
@@ -35,6 +36,8 @@ public class BackupCommand extends CommandBase {
 			throw new WrongUsageException(this.getCommandUsage(sender));
 
 		switch (args[0]) {
+		case "archive":
+			throw new CommandException("Not yet implemented");
 		case "help":
 			String[] helpText = {"SmartBackup commands:",
 			    "  help - Show a list of valid subcommands",
@@ -43,6 +46,8 @@ public class BackupCommand extends CommandBase {
 			for (String line : helpText)
 				sender.addChatMessage(new ChatComponentText(line));
 			break;
+		case "snapshot":
+			throw new CommandException("Not yet implemented");
 		case "version":
 			sender.addChatMessage(new ChatComponentText(
 			    "SmartBackup " + SmartBackup.VERSION
@@ -66,13 +71,14 @@ public class BackupCommand extends CommandBase {
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {
-		return "/" + this.getCommandName() + " <help|version>";
+		return "/" + this.getCommandName() + " <archive|help|snapshot|version>";
 	}
 
 	@Override
 	public List addTabCompletionOptions(ICommandSender sender, String[] command) {
 		if (command.length > 1)
 			return null;
-		return getListOfStringsMatchingLastWord(command, "help", "version");
+		return getListOfStringsMatchingLastWord(command, "archive", "help", "snapshot",
+		    "version");
 	}
 }
