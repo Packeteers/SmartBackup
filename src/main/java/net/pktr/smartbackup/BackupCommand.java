@@ -24,15 +24,6 @@ import net.minecraft.util.ChatComponentText;
 import java.util.List;
 
 public class BackupCommand extends CommandBase {
-	/**
-	 * Complain to the sender that they haven't entered the command correctly.
-	 *
-	 * @param sender ICommandSender to complain to.
-	 */
-	private void sendUsage(ICommandSender sender) {
-		throw new WrongUsageException(this.getCommandUsage(sender));
-	}
-
 	@Override
 	public String getCommandName() {
 		return "smartbackup";
@@ -40,11 +31,8 @@ public class BackupCommand extends CommandBase {
 
 	@Override
 	public void processCommand(ICommandSender sender, String[] args) {
-
-		if (args.length == 0) {
-			this.sendUsage(sender);
-			return;
-		}
+		if (args.length == 0)
+			throw new WrongUsageException(this.getCommandUsage(sender));
 
 		switch (args[0]) {
 		case "help":
@@ -72,7 +60,7 @@ public class BackupCommand extends CommandBase {
 			sender.addChatMessage(new ChatComponentText(buildInfo));
 			break;
 		default:
-			this.sendUsage(sender);
+			throw new WrongUsageException(this.getCommandUsage(sender));
 		}
 	}
 
