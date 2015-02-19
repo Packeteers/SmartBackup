@@ -55,7 +55,7 @@ public class BackupCommand extends CommandBase {
 			if (SmartBackup.SOURCE_REVISION.equals("UNKNOWN"))
 				buildInfo += " from an unknown source revision";
 			else
-				buildInfo += " from source revision " + SmartBackup.SOURCE_REVISION;
+				buildInfo += " from " + SmartBackup.SOURCE_REVISION;
 
 			sender.addChatMessage(new ChatComponentText(buildInfo));
 			break;
