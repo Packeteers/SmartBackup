@@ -29,39 +29,39 @@ import org.apache.logging.log4j.Logger;
     version = SmartBackup.VERSION,
     acceptableRemoteVersions = "*")
 public class SmartBackup {
-	public static final String MOD_ID = "smartbackup";
-	public static final String MOD_NAME = "SmartBackup";
+  public static final String MOD_ID = "smartbackup";
+  public static final String MOD_NAME = "SmartBackup";
 
-	// These are filled in by the build process.
-	public static final String VERSION = "$VERSION$";
-	public static final String SOURCE_REVISION = "$SOURCE_REVISION$";
-	public static final String BUILD_TIMESTAMP = "$BUILD_TIMESTAMP$";
+  // These are filled in by the build process.
+  public static final String VERSION = "$VERSION$";
+  public static final String SOURCE_REVISION = "$SOURCE_REVISION$";
+  public static final String BUILD_TIMESTAMP = "$BUILD_TIMESTAMP$";
 
-	private Logger logger;
-	private BackupManager manager;
+  private Logger logger;
+  private BackupManager manager;
 
-	@EventHandler
-	public void preInitializationEvent(FMLPreInitializationEvent event) {
-		logger = event.getModLog();
-	}
+  @EventHandler
+  public void preInitializationEvent(FMLPreInitializationEvent event) {
+    logger = event.getModLog();
+  }
 
-	@EventHandler
-	public void initializationEvent(FMLInitializationEvent event) {
-		manager = new BackupManager(logger);
-	}
+  @EventHandler
+  public void initializationEvent(FMLInitializationEvent event) {
+    manager = new BackupManager(logger);
+  }
 
-	@EventHandler
-	public void serverStartingEvent(FMLServerStartingEvent event) {
-		event.registerServerCommand(new BackupCommand(manager));
-	}
+  @EventHandler
+  public void serverStartingEvent(FMLServerStartingEvent event) {
+    event.registerServerCommand(new BackupCommand(manager));
+  }
 
-	@EventHandler
-	public void serverStoppingEvent(FMLServerStoppingEvent event) {
-		manager.interruptBackups();
-		try {
-			manager.waitForBackups();
-		} catch (InterruptedException e) {
-			return;
-		}
-	}
+  @EventHandler
+  public void serverStoppingEvent(FMLServerStoppingEvent event) {
+    manager.interruptBackups();
+    try {
+      manager.waitForBackups();
+    } catch (InterruptedException e) {
+      return;
+    }
+  }
 }

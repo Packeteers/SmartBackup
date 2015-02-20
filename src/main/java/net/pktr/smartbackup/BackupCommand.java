@@ -26,92 +26,98 @@ import net.minecraft.util.ChatComponentText;
 import java.util.List;
 
 public class BackupCommand extends CommandBase {
-	private BackupManager manager;
+  private BackupManager manager;
 
-	public BackupCommand(BackupManager man) {
-		manager = man;
-	}
+  public BackupCommand(BackupManager man) {
+    manager = man;
+  }
 
-	@Override
-	public String getCommandName() {
-		return "smartbackup";
-	}
+  @Override
+  public String getCommandName() {
+    return "smartbackup";
+  }
 
-	@Override
-	public void processCommand(ICommandSender sender, String[] args) {
-		if (args.length == 0)
-			throw new WrongUsageException(this.getCommandUsage(sender));
+  @Override
+  public void processCommand(ICommandSender sender, String[] args) {
+    if (args.length == 0) {
+      throw new WrongUsageException(this.getCommandUsage(sender));
+    }
 
-		switch (args[0]) {
-		case "archive":
-			throw new CommandException("Not yet implemented");
-		case "help":
-			String[] helpText = {"SmartBackup commands:",
-			    "  archive - Not yet implemented.",
-			    "  help - Show a list of valid subcommands",
-			    "  snapshot - Not yet implemented.",
-			    "  version - Show version information"
-			};
-			for (String line : helpText)
-				sender.addChatMessage(new ChatComponentText(line));
-			break;
-		case "snapshot":
-			if (args.length < 2)
-				throw new SyntaxErrorException("Usage for snapshot");
+    switch (args[0]) {
+      case "archive":
+        throw new CommandException("Not yet implemented");
+      case "help":
+        String[] helpText = {
+            "SmartBackup commands:",
+            "  archive - Not yet implemented.",
+            "  help - Show a list of valid subcommands",
+            "  snapshot - Not yet implemented.",
+            "  version - Show version information"
+        };
 
-			if (args[1].equals("run")) {
-				if (manager.backupInProgress())
-					throw new CommandException(
-					    "There is currently a backup in progress."
-					);
-				manager.startSnapshot(sender);
-			}
+        for (String line : helpText) {
+          sender.addChatMessage(new ChatComponentText(line));
+        }
 
-			if (args[1].equals("cancel")) {
-				if (!manager.backupInProgress())
-					throw new CommandException(
-					    "There are no snapshots running."
-					);
-				manager.interruptBackups();
-				try {
-					manager.waitForBackups();
-				} catch (InterruptedException e) {
-					return;
-				}
-				sender.addChatMessage(new ChatComponentText("Snapshot cancelled"));
-			}
-			break;
-		case "version":
-			sender.addChatMessage(new ChatComponentText(
-			    "SmartBackup " + SmartBackup.VERSION
-			));
+        break;
+      case "snapshot":
+        if (args.length < 2) {
+          throw new SyntaxErrorException("Usage for snapshot");
+        }
 
-			String buildInfo = "Built " + SmartBackup.BUILD_TIMESTAMP;
+        if (args[1].equals("run")) {
+          if (manager.backupInProgress()) {
+            throw new CommandException("There is currently a backup in progress.");
+          }
+          manager.startSnapshot(sender);
+        }
 
-			// The source revision is "UNKNOWN" if build.gradle can't use git or there
-			// is an issue getting the revision string.
-			if (SmartBackup.SOURCE_REVISION.equals("UNKNOWN"))
-				buildInfo += " from an unknown source revision";
-			else
-				buildInfo += " from " + SmartBackup.SOURCE_REVISION;
+        if (args[1].equals("cancel")) {
+          if (!manager.backupInProgress()) {
+            throw new CommandException("There are no snapshots running.");
+          }
 
-			sender.addChatMessage(new ChatComponentText(buildInfo));
-			break;
-		default:
-			throw new WrongUsageException(this.getCommandUsage(sender));
-		}
-	}
+          manager.interruptBackups();
 
-	@Override
-	public String getCommandUsage(ICommandSender sender) {
-		return "/" + this.getCommandName() + " <archive|help|snapshot|version>";
-	}
+          try {
+            manager.waitForBackups();
+          } catch (InterruptedException e) {
+            return;
+          }
 
-	@Override
-	public List addTabCompletionOptions(ICommandSender sender, String[] command) {
-		if (command.length > 1)
-			return null;
-		return getListOfStringsMatchingLastWord(command, "archive", "help", "snapshot",
-		    "version");
-	}
+          sender.addChatMessage(new ChatComponentText("Snapshot cancelled"));
+        }
+        break;
+      case "version":
+        sender.addChatMessage(new ChatComponentText("SmartBackup " + SmartBackup.VERSION));
+
+        String buildInfo = "Built " + SmartBackup.BUILD_TIMESTAMP;
+
+        // The source revision is "UNKNOWN" if build.gradle can't use git or there
+        // is an issue getting the revision string.
+        if (SmartBackup.SOURCE_REVISION.equals("UNKNOWN")) {
+          buildInfo += " from an unknown source revision";
+        } else {
+          buildInfo += " from " + SmartBackup.SOURCE_REVISION;
+        }
+
+        sender.addChatMessage(new ChatComponentText(buildInfo));
+        break;
+      default:
+        throw new WrongUsageException(this.getCommandUsage(sender));
+    }
+  }
+
+  @Override
+  public String getCommandUsage(ICommandSender sender) {
+    return "/" + this.getCommandName() + " <archive|help|snapshot|version>";
+  }
+
+  @Override
+  public List addTabCompletionOptions(ICommandSender sender, String[] command) {
+    if (command.length > 1) {
+      return null;
+    }
+    return getListOfStringsMatchingLastWord(command, "archive", "help", "snapshot", "version");
+  }
 }

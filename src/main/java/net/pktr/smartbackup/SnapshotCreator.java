@@ -27,43 +27,42 @@ import org.apache.logging.log4j.Logger;
  * a backup.</p>
  */
 public class SnapshotCreator extends BackupCreator {
-	public SnapshotCreator(ICommandSender sender, Logger logger) {
-		super(sender, logger);
-		this.setName("Snapshot Thread");
-	}
+  public SnapshotCreator(ICommandSender sender, Logger logger) {
+    super(sender, logger);
+    this.setName("Snapshot Thread");
+  }
 
-	public void run() {
-		logger.info("Starting snapshot");
+  public void run() {
+    logger.info("Starting snapshot");
 
-		if (requester != null)
-			this.getRequester().addChatMessage(
-			    new ChatComponentText("Starting snapshot...")
-			);
+    if (requester != null) {
+      this.getRequester().addChatMessage(new ChatComponentText("Starting snapshot..."));
+    }
 
-		try {
-			// Fake work
-			sleep(5000);
-		} catch (InterruptedException e) {
-			logger.warn(
-			    "A snapshot was interrupted while in-progress. " +
-				"Any partially-created data will be deleted."
-			);
+    try {
+      // Fake work
+      sleep(5000);
+    } catch (InterruptedException e) {
+      logger.warn(
+          "A snapshot was interrupted while in-progress. " +
+              "Any partially-created data will be deleted."
+      );
 
-			if (requester != null)
-				requester.addChatMessage(
-				    new ChatComponentText(
-					"Your snapshot was interrupted. " +
-					    "Any partially-created data will be deleted."
-				    )
-				);
-			return;
-		}
+      if (requester != null) {
+        requester.addChatMessage(
+            new ChatComponentText(
+                "Your snapshot was interrupted. Any partially-created data will be deleted."
+            )
+        );
+      }
 
-		logger.info("Snapshot completed.");
+      return;
+    }
 
-		if (requester != null)
-			this.getRequester().addChatMessage(
-			    new ChatComponentText("Snapshot complete!")
-			);
-	}
+    logger.info("Snapshot completed.");
+
+    if (requester != null) {
+      this.getRequester().addChatMessage(new ChatComponentText("Snapshot complete!"));
+    }
+  }
 }

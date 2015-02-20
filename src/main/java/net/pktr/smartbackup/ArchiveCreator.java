@@ -9,12 +9,12 @@ import org.apache.logging.log4j.Logger;
  * backed up.</p>
  */
 public class ArchiveCreator extends BackupCreator {
-	public ArchiveCreator(ICommandSender sender, Logger logger) {
-		super(sender, logger);
-		this.setName("Archive Thread");
-	}
+  public ArchiveCreator(ICommandSender sender, Logger logger) {
+    super(sender, logger);
+    this.setName("Archive Thread");
+  }
 
-	public void run() {
+  public void run() {
 
-	}
+  }
 }
