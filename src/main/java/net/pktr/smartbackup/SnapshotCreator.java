@@ -36,7 +36,7 @@ public class SnapshotCreator extends BackupCreator {
     logger.info("Starting snapshot");
 
     if (requester != null) {
-      this.getRequester().addChatMessage(new ChatComponentText("Starting snapshot..."));
+      requester.addChatMessage(new ChatComponentText("Starting snapshot..."));
     }
 
     try {
@@ -62,7 +62,7 @@ public class SnapshotCreator extends BackupCreator {
     logger.info("Snapshot completed.");
 
     if (requester != null) {
-      this.getRequester().addChatMessage(new ChatComponentText("Snapshot complete!"));
+      requester.addChatMessage(new ChatComponentText("Snapshot complete!"));
     }
   }
 }
