@@ -29,8 +29,8 @@ import org.apache.logging.log4j.Logger;
     version = SmartBackup.VERSION,
     acceptableRemoteVersions = "*")
 public class SmartBackup {
-  public static final String MOD_ID = "smartbackup";
-  public static final String MOD_NAME = "SmartBackup";
+  public static final String MOD_ID = "SmartBackup";
+  public static final String MOD_NAME = MOD_ID;
 
   // These are filled in by the build process.
   public static final String VERSION = "$VERSION$";
