@@ -47,15 +47,31 @@ public class BackupCommand extends CommandBase {
     }
 
     switch (args[0]) {
-      case "archive":
-        throw new CommandException("Not yet implemented");
+      case "cancel":
+        if (!manager.backupInProgress()) {
+          throw new CommandException("No backups are running");
+        }
+
+        manager.interruptBackups();
+
+        try {
+          manager.waitForBackups();
+        } catch (InterruptedException e) {
+          return;
+        }
+
+        sender.addChatMessage(new ChatComponentText("Backup cancelled"));
+
+        break;
       case "help":
         String[] helpText = {
-            "SmartBackup commands:",
-            "  archive - Not yet implemented.",
-            "  help - Show a list of valid subcommands",
-            "  snapshot - Not yet implemented.",
-            "  version - Show version information"
+            "SmartBackup subcommands:",
+            "  cancel - Cancel the currently-running backup (if any)",
+            "  help - List subcommands",
+            "  status - Show the status of the backup system",
+            "  take-archive - Start the creation of an archive",
+            "  take-snapshot - Start the creation of a snapshot",
+            "  version - Show information about SmartBackup's version"
         };
 
         for (String line : helpText) {
@@ -63,33 +79,27 @@ public class BackupCommand extends CommandBase {
         }
 
         break;
-      case "snapshot":
-        if (args.length < 2) {
-          throw new SyntaxErrorException("Usage for snapshot");
+      case "status":
+        if (!manager.backupInProgress()) {
+          sender.addChatMessage(new ChatComponentText("Ready to take a backup"));
+          break;
         }
 
-        if (args[1].equals("run")) {
-          if (manager.backupInProgress()) {
-            throw new CommandException("There is currently a backup in progress.");
-          }
+        sender.addChatMessage(new ChatComponentText("A backup is currently in-progress"));
+
+        break;
+      case "take-archive":
+      case "take-snapshot":
+        if (manager.backupInProgress()) {
+          throw new CommandException("There is currently a backup in progress.");
+        }
+
+        if (args[0].equals("take-archive")) {
+          manager.startArchive(sender);
+        } else {
           manager.startSnapshot(sender);
         }
 
-        if (args[1].equals("cancel")) {
-          if (!manager.backupInProgress()) {
-            throw new CommandException("There are no snapshots running.");
-          }
-
-          manager.interruptBackups();
-
-          try {
-            manager.waitForBackups();
-          } catch (InterruptedException e) {
-            return;
-          }
-
-          sender.addChatMessage(new ChatComponentText("Snapshot cancelled"));
-        }
         break;
       case "version":
         sender.addChatMessage(new ChatComponentText("SmartBackup " + SmartBackup.VERSION));
@@ -105,6 +115,7 @@ public class BackupCommand extends CommandBase {
         }
 
         sender.addChatMessage(new ChatComponentText(buildInfo));
+
         break;
       default:
         throw new WrongUsageException(this.getCommandUsage(sender));
@@ -113,7 +124,7 @@ public class BackupCommand extends CommandBase {
 
   @Override
   public String getCommandUsage(ICommandSender sender) {
-    return "/" + this.getCommandName() + " <archive|help|snapshot|version>";
+    return "/" + this.getCommandName() + " <cancel|help|status|take-archive|take-snapshot|version>";
   }
 
   @Override
@@ -121,6 +132,10 @@ public class BackupCommand extends CommandBase {
     if (command.length > 1) {
       return null;
     }
-    return getListOfStringsMatchingLastWord(command, "archive", "help", "snapshot", "version");
+
+    return getListOfStringsMatchingLastWord(
+        command,
+        "cancel", "help", "status", "take-archive", "take-snapshot", "version"
+    );
   }
 }
