@@ -25,6 +25,9 @@ import net.minecraft.util.ChatComponentText;
 
 import java.util.List;
 
+/**
+ * The /smartbackup command.
+ */
 public class BackupCommand extends CommandBase {
   private BackupManager manager;
 

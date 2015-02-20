@@ -21,17 +21,25 @@ import net.minecraft.util.ChatComponentText;
 import org.apache.logging.log4j.Logger;
 
 /**
- * Handles creation of Snapshots.
+ * Handles creation of snapshots.
+ *
  * <p>A snapshot is a folder of hardlinks to the world data files. Snapshots provide a
- * restorable state of the world without copying all of the world data every time you take
- * a backup.</p>
+ * restorable state of the world without copying all of the world data every time you take a
+ * backup.</p>
  */
 public class SnapshotCreator extends BackupCreator {
+  /**
+   * Sets up a snapshot creation thread.
+   *
+   * @param sender The ICommandSender that requested this snapshot. Used for status messages.
+   * @param logger The Logger to report messages to.
+   */
   public SnapshotCreator(ICommandSender sender, Logger logger) {
     super(sender, logger);
     this.setName("Snapshot Thread");
   }
 
+  @Override
   public void run() {
     logger.info("Starting snapshot");
 

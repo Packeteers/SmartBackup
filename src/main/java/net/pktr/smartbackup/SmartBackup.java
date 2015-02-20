@@ -24,6 +24,9 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Main SmartBackup mod class.
+ */
 @Mod(modid = SmartBackup.MOD_ID,
     name = SmartBackup.MOD_NAME,
     version = SmartBackup.VERSION,

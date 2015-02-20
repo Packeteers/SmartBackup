@@ -3,6 +3,9 @@ package net.pktr.smartbackup;
 import net.minecraft.command.ICommandSender;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Manages (start, interrupt, get status of) snapshot and archive creator threads.
+ */
 public class BackupManager {
   private Logger logger;
   private BackupCreator currentBackup;
@@ -12,16 +15,18 @@ public class BackupManager {
   }
 
   /**
-   * Used to check if there is currently a backup running.
+   * Checks if there is currently a backup running.
    *
-   * @return true if there is a backup running.
+   * @return true if a backup is running.
    */
   public boolean backupInProgress() {
     return currentBackup != null && currentBackup.isAlive();
   }
 
   /**
-   * Spawns a new backup thread to create a snapshot.
+   * Spawns creation process for a new snapshot.
+   *
+   * @param requester The {@code ICommandSender} that requested the snapshot.
    */
   public void startSnapshot(ICommandSender requester) {
     currentBackup = new SnapshotCreator(requester, logger);
@@ -29,7 +34,9 @@ public class BackupManager {
   }
 
   /**
-   * Spawns a new backup thread to create an archive.
+   * Spawns creation process for a new archive.
+   *
+   * @param requester The {@code ICommandSender} that requested the archive.
    */
   public void startArchive(ICommandSender requester) {
     currentBackup = new ArchiveCreator(requester, logger);
@@ -37,8 +44,9 @@ public class BackupManager {
   }
 
   /**
-   * Interrupts any current backups in progress. Doing this will remove any partially-created
-   * snapshots or archives.
+   * Interrupts any current backups in progress.
+   *
+   * <p>Doing this will remove any temporary files related to the in-progress backup.</p>
    */
   public void interruptBackups() {
     if (currentBackup != null && currentBackup.isAlive()) {
@@ -47,8 +55,9 @@ public class BackupManager {
   }
 
   /**
-   * Blocks until any child backup threads have exited, or the current thread is interrupted
-   * (throwing InterruptedException).
+   * Blocks until any child backup threads have exited, or the current thread is interrupted.
+   *
+   * @throws InterruptedException from the join() method on the creator thread.
    */
   public void waitForBackups() throws InterruptedException {
     if (currentBackup != null && currentBackup.isAlive()) {
