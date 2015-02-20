@@ -19,12 +19,19 @@ package net.pktr.smartbackup;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.command.SyntaxErrorException;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.util.ChatComponentText;
 
 import java.util.List;
 
 public class BackupCommand extends CommandBase {
+	private BackupManager manager;
+
+	public BackupCommand(BackupManager man) {
+		manager = man;
+	}
+
 	@Override
 	public String getCommandName() {
 		return "smartbackup";
@@ -49,7 +56,31 @@ public class BackupCommand extends CommandBase {
 				sender.addChatMessage(new ChatComponentText(line));
 			break;
 		case "snapshot":
-			throw new CommandException("Not yet implemented");
+			if (args.length < 2)
+				throw new SyntaxErrorException("Usage for snapshot");
+
+			if (args[1].equals("run")) {
+				if (manager.backupInProgress())
+					throw new CommandException(
+					    "There is currently a backup in progress."
+					);
+				manager.startSnapshot(sender);
+			}
+
+			if (args[1].equals("cancel")) {
+				if (!manager.backupInProgress())
+					throw new CommandException(
+					    "There are no snapshots running."
+					);
+				manager.interruptBackups();
+				try {
+					manager.waitForBackups();
+				} catch (InterruptedException e) {
+					return;
+				}
+				sender.addChatMessage(new ChatComponentText("Snapshot cancelled"));
+			}
+			break;
 		case "version":
 			sender.addChatMessage(new ChatComponentText(
 			    "SmartBackup " + SmartBackup.VERSION
