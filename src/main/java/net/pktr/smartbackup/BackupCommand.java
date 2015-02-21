@@ -19,11 +19,12 @@ package net.pktr.smartbackup;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.command.SyntaxErrorException;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.util.ChatComponentText;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.TimeZone;
 
 /**
  * The /smartbackup command.
@@ -51,6 +52,8 @@ public class BackupCommand extends CommandBase {
         if (!manager.backupInProgress()) {
           throw new CommandException("No backups are running");
         }
+
+        manager.getCurrentBackup().setInterrupter(sender);
 
         manager.interruptBackups();
 
@@ -80,12 +83,72 @@ public class BackupCommand extends CommandBase {
 
         break;
       case "status":
-        if (!manager.backupInProgress()) {
-          sender.addChatMessage(new ChatComponentText("Ready to take a backup"));
-          break;
+        if (manager.backupInProgress()) {
+          sender.addChatMessage(new ChatComponentText("A backup is in progress:"));
+        } else {
+          sender.addChatMessage(new ChatComponentText("Ready to take a backup!"));
+          if (manager.getCurrentBackup() == null) {
+            break;
+          } else {
+            sender.addChatMessage(new ChatComponentText("Last backup requested:"));
+          }
         }
 
-        sender.addChatMessage(new ChatComponentText("A backup is currently in-progress"));
+        BackupCreator currentBackup = manager.getCurrentBackup();
+
+        // Request information
+
+        if (currentBackup instanceof SnapshotCreator) {
+          sender.addChatMessage(new ChatComponentText("  Type: Snapshot"));
+        } else if (currentBackup instanceof ArchiveCreator) {
+          sender.addChatMessage(new ChatComponentText("  Type: Archive"));
+        }
+
+        sender.addChatMessage(
+            new ChatComponentText(
+                "  Requested by: " + currentBackup.getRequester().getCommandSenderName()
+            )
+        );
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        sender.addChatMessage(
+            new ChatComponentText(
+                "  Requested at: " + formatter.format(currentBackup.getRequestTime())
+            )
+        );
+
+        // Interruption information (if interrupted)
+
+        if (currentBackup.getInterruptedTime() != null) {
+          sender.addChatMessage(
+              new ChatComponentText(
+                  "  Interrupted at: " + formatter.format(currentBackup.getInterruptedTime())
+              )
+          );
+          if (currentBackup.getInterrupter() != null) {
+            sender.addChatMessage(
+                new ChatComponentText(
+                    "  Interrupted by: " + currentBackup.getInterrupter().getCommandSenderName()
+                )
+            );
+          } else {
+            sender.addChatMessage(
+                new ChatComponentText("  Interrupted by an unknown force (probably the JVM)")
+            );
+          }
+        }
+
+        // Completion information (if completed)
+
+        if (currentBackup.getCompletionTime() != null) {
+          sender.addChatMessage(
+              new ChatComponentText(
+                  "  Completed at: " + formatter.format(currentBackup.getCompletionTime())
+              )
+          );
+        }
 
         break;
       case "take-archive":

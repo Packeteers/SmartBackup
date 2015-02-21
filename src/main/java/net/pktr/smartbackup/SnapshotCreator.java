@@ -20,6 +20,10 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
 import org.apache.logging.log4j.Logger;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
+
 /**
  * Handles creation of snapshots.
  *
@@ -43,34 +47,36 @@ public class SnapshotCreator extends BackupCreator {
   public void run() {
     logger.info("Starting snapshot");
 
-    if (requester != null) {
-      requester.addChatMessage(new ChatComponentText("Starting snapshot..."));
-    }
+    requester.addChatMessage(new ChatComponentText("Starting snapshot..."));
 
     try {
       // Fake work
-      sleep(5000);
+      sleep(10000);
     } catch (InterruptedException e) {
+      interruptedTime = new Date();
+
       logger.warn(
           "A snapshot was interrupted while in-progress. " +
               "Any partially-created data will be deleted."
       );
 
-      if (requester != null) {
-        requester.addChatMessage(
-            new ChatComponentText(
-                "Your snapshot was interrupted. Any partially-created data will be deleted."
-            )
-        );
-      }
+      requester.addChatMessage(
+          new ChatComponentText(
+              "Your snapshot was interrupted. Any partially-created data will be deleted."
+          )
+      );
 
       return;
     }
 
-    logger.info("Snapshot completed.");
+    completionTime = new Date();
 
-    if (requester != null) {
-      requester.addChatMessage(new ChatComponentText("Snapshot complete!"));
-    }
+    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+    String completionMessage = "Snapshot completed at " + formatter.format(completionTime);
+
+    logger.info(completionMessage);
+    requester.addChatMessage(new ChatComponentText(completionMessage));
   }
 }

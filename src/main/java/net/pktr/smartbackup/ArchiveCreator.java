@@ -19,6 +19,8 @@ package net.pktr.smartbackup;
 import net.minecraft.command.ICommandSender;
 import org.apache.logging.log4j.Logger;
 
+import java.util.Date;
+
 /**
  * Handles creation of archives.
  *
@@ -39,6 +41,6 @@ public class ArchiveCreator extends BackupCreator {
 
   @Override
   public void run() {
-
+    completionTime = new Date();
   }
 }

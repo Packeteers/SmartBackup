@@ -40,6 +40,18 @@ public class BackupManager {
   }
 
   /**
+   * Get the current backup object.
+   *
+   * <p>Useful for getting information regarding the currently-running or last-requested backup.</p>
+   *
+   * @return The {@code BackupCreator} instance of the current backup. May also be {@code null} if
+   * no backups have been run.
+   */
+  public BackupCreator getCurrentBackup() {
+    return currentBackup;
+  }
+
+  /**
    * Spawns creation process for a new snapshot.
    *
    * @param requester The {@code ICommandSender} that requested the snapshot.
