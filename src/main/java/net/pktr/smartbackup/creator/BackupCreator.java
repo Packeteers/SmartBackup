@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.pktr.smartbackup;
+package net.pktr.smartbackup.creator;
 
 import net.minecraft.command.ICommandSender;
 import org.apache.logging.log4j.Logger;

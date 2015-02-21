@@ -16,6 +16,10 @@
 
 package net.pktr.smartbackup;
 
+import net.pktr.smartbackup.creator.ArchiveCreator;
+import net.pktr.smartbackup.creator.BackupCreator;
+import net.pktr.smartbackup.creator.SnapshotCreator;
+
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;

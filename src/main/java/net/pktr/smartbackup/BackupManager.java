@@ -16,6 +16,10 @@
 
 package net.pktr.smartbackup;
 
+import net.pktr.smartbackup.creator.ArchiveCreator;
+import net.pktr.smartbackup.creator.BackupCreator;
+import net.pktr.smartbackup.creator.SnapshotCreator;
+
 import net.minecraft.command.ICommandSender;
 import org.apache.logging.log4j.Logger;
 
