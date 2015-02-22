@@ -100,8 +100,6 @@ public class BackupCommand extends CommandBase {
 
         BackupCreator currentBackup = manager.getCurrentBackup();
 
-        // Request information
-
         if (currentBackup instanceof SnapshotCreator) {
           sender.addChatMessage(new ChatComponentText("  Type: Snapshot"));
         } else if (currentBackup instanceof ArchiveCreator) {
@@ -114,44 +112,69 @@ public class BackupCommand extends CommandBase {
             )
         );
 
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-        formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+        SimpleDateFormat rfc8601Formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        rfc8601Formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         sender.addChatMessage(
             new ChatComponentText(
-                "  Requested at: " + formatter.format(currentBackup.getRequestTime())
+                "  Requested at: " + rfc8601Formatter.format(currentBackup.getRequestTime())
             )
         );
 
-        // Interruption information (if interrupted)
+        switch(currentBackup.getStatus()) {
+          case PENDING:
+            sender.addChatMessage(new ChatComponentText("  Status: Pending"));
+            break;
+          case INPROGRESS:
+            sender.addChatMessage(new ChatComponentText("  Status: In-Progress"));
+            break;
+          case COMPLETED:
+            sender.addChatMessage(new ChatComponentText("  Status: Completed Successfully"));
 
-        if (currentBackup.getInterruptedTime() != null) {
-          sender.addChatMessage(
-              new ChatComponentText(
-                  "  Interrupted at: " + formatter.format(currentBackup.getInterruptedTime())
-              )
-          );
-          if (currentBackup.getInterrupter() != null) {
             sender.addChatMessage(
                 new ChatComponentText(
-                    "  Interrupted by: " + currentBackup.getInterrupter().getCommandSenderName()
+                    "  Completed at: " + rfc8601Formatter.format(currentBackup.getEndTime())
                 )
             );
-          } else {
+            break;
+          case INTERRUPTED:
+            sender.addChatMessage(new ChatComponentText("  Status: Interrupted"));
+
             sender.addChatMessage(
-                new ChatComponentText("  Interrupted by an unknown force (probably the JVM)")
+                new ChatComponentText(
+                    "  Interrupted at: " + rfc8601Formatter.format(currentBackup.getEndTime())
+                )
             );
-          }
-        }
 
-        // Completion information (if completed)
+            if (currentBackup.getInterrupter() != null) {
+              sender.addChatMessage(
+                  new ChatComponentText(
+                      "  Interrupted by: " + currentBackup.getInterrupter().getCommandSenderName()
+                  )
+              );
+            } else {
+              sender.addChatMessage(
+                  new ChatComponentText("  Interrupted by an unknown force (probably the JVM)")
+              );
+            }
 
-        if (currentBackup.getCompletionTime() != null) {
-          sender.addChatMessage(
-              new ChatComponentText(
-                  "  Completed at: " + formatter.format(currentBackup.getCompletionTime())
-              )
-          );
+            break;
+          case FAILED:
+            sender.addChatMessage(new ChatComponentText("  Status: Failed"));
+
+            sender.addChatMessage(
+                new ChatComponentText(
+                    "  Failed at: " + rfc8601Formatter.format(currentBackup.getEndTime())
+                )
+            );
+
+            sender.addChatMessage(
+                new ChatComponentText(
+                    "  Error: " + currentBackup.getError().getMessage()
+                )
+            );
+
+            break;
         }
 
         break;

@@ -17,9 +17,12 @@
 package net.pktr.smartbackup.creator;
 
 import net.minecraft.command.ICommandSender;
+import net.minecraft.util.ChatComponentText;
 import org.apache.logging.log4j.Logger;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Handles creation of archives.
@@ -41,6 +44,23 @@ public class ArchiveCreator extends BackupCreator {
 
   @Override
   public void run() {
-    completionTime = new Date();
+    logger.info("Starting archive");
+    requester.addChatMessage(new ChatComponentText("Starting archive"));
+    status = BackupStatus.INPROGRESS;
+
+    // TODO: Save player and world data
+
+    // TODO: Create archive
+
+    status = BackupStatus.COMPLETED;
+    endTime = new Date();
+
+    SimpleDateFormat rfc8601Formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    rfc8601Formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+    String completionMessage = "Archive completed at " + rfc8601Formatter.format(endTime);
+
+    logger.info(completionMessage);
+    requester.addChatMessage(new ChatComponentText(completionMessage));
   }
 }

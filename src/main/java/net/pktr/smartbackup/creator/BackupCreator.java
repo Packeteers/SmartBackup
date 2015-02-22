@@ -21,27 +21,37 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.Date;
 
-/**
- * Stores a requester and logger for a derivative creator thread class.
- */
+/** Stores a requester and logger for a derivative creator thread class. */
 public abstract class BackupCreator extends Thread {
-  /**
-   * The {@code ICommandSender} that requested the backup.
-   */
-  protected final ICommandSender requester;
+  /** Represents the status of the backup. */
+  public static enum BackupStatus {
+    /** The backup has not yet started. */
+    PENDING,
+    /** The backup is currently running. */
+    INPROGRESS,
+    /** The backup was successfully completed. */
+    COMPLETED,
+    /** The backup was interrupted. */
+    INTERRUPTED,
+    /** The backup failed with an error. */
+    FAILED
+  }
 
-  /**
-   * The {@code ICommandSender} that interrupted the backup.
-   *
-   * <p>If this backup was not interrupted or wasn't interrupted by an {@code ICommandSender}, this
-   * is {@code null}.</p>
-   */
-  protected ICommandSender interrupter = null;
-
-  /**
-   * SmartBackup's {@code Logger}
-   */
+  /** SmartBackup's {@code Logger} */
   protected final Logger logger;
+
+  /** The status of this backup. */
+  protected BackupStatus status;
+
+  /**
+   * The error that caused this backup to fail.
+   *
+   * <p>This is {@code null} unless the backup is in the {@code FAILED} state.</p>
+   */
+  protected Throwable error = null;
+
+  /** The {@code ICommandSender} that requested the backup. */
+  protected final ICommandSender requester;
 
   /**
    * When this backup was requested.
@@ -53,22 +63,25 @@ public abstract class BackupCreator extends Thread {
   protected final Date requestTime;
 
   /**
-   * When this backup was interrupted.
+   * When this backup ended.
    *
-   * <p>If this backup is not (yet) interrupted, this is {@code null}.</p>
+   * <p>This can be because of successful completion, interruption, or error.</p>
+   *
+   * <p>Until this backup ends, this is {@code null}.</p>
    */
-  protected Date interruptedTime = null;
+  protected Date endTime = null;
 
   /**
-   * When this backup was completed.
+   * The {@code ICommandSender} that interrupted the backup.
    *
-   * <p>Until completion, this is {@code null}.</p>
+   * <p>If this backup was not interrupted by an {@code ICommandSender}, this is {@code null}.</p>
    */
-  protected Date completionTime = null;
+  protected ICommandSender interrupter = null;
 
   public BackupCreator(ICommandSender sender, Logger log) {
     requester = sender;
     logger = log;
+    status = BackupStatus.PENDING;
     requestTime = new Date();
   }
 
@@ -95,6 +108,36 @@ public abstract class BackupCreator extends Thread {
   }
 
   /**
+   * Gets when the backup ended.
+   *
+   * <p>The backup can end for multiple reasons, use {@link #getStatus} to check the backup's
+   * status.</p>
+   *
+   * @return When this backup was completed.
+   */
+  public synchronized Date getEndTime() {
+    return endTime;
+  }
+
+  /**
+   * Get the status of this backup.
+   *
+   * @return {@code enum BackupStatus} representing this backup's status.
+   */
+  public BackupStatus getStatus() {
+    return status;
+  }
+
+  /**
+   * Get the error that caused this backup to fail.
+   *
+   * @return The error that caused this backup to fail.
+   */
+  public Throwable getError() {
+    return error;
+  }
+
+  /**
    * Gets the {@code ICommandSender} that interrupted the backup.
    *
    * <p>If this backup was not interrupted or wasn't interrupted by an {@code ICommandSender}, this
@@ -113,29 +156,5 @@ public abstract class BackupCreator extends Thread {
    */
   public void setInterrupter(ICommandSender interrupter) {
     this.interrupter = interrupter;
-  }
-
-  /**
-   * Gets when this backup was interrupted.
-   *
-   * <p>If this backup has not (yet) been interrupted, this is {@code null}.</p>
-   *
-   * @return When this backup was interrupted.
-   */
-  public synchronized Date getInterruptedTime() {
-    return interruptedTime;
-  }
-
-  /**
-   * Gets when the backup was completed.
-   *
-   * <p>If this backup is still running or was interrupted, this is {@code null}.</p>
-   *
-   * <p>For interruption, see {@link #getInterruptedTime}</p>
-   *
-   * @return When this backup was completed.
-   */
-  public synchronized Date getCompletionTime() {
-    return completionTime;
   }
 }

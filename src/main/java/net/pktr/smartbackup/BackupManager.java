@@ -40,7 +40,9 @@ public class BackupManager {
    * @return true if a backup is running.
    */
   public boolean backupInProgress() {
-    return currentBackup != null && currentBackup.isAlive();
+    return currentBackup != null &&
+        (currentBackup.getStatus() == BackupCreator.BackupStatus.PENDING ||
+        currentBackup.getStatus() == BackupCreator.BackupStatus.INPROGRESS);
   }
 
   /**

@@ -46,14 +46,18 @@ public class SnapshotCreator extends BackupCreator {
   @Override
   public void run() {
     logger.info("Starting snapshot");
-
     requester.addChatMessage(new ChatComponentText("Starting snapshot..."));
+    status = BackupStatus.INPROGRESS;
 
+    // TODO: Save player and world data
+
+    // TODO: Create snapshot
     try {
       // Fake work
       sleep(10000);
     } catch (InterruptedException e) {
-      interruptedTime = new Date();
+      endTime = new Date();
+      status = BackupStatus.INTERRUPTED;
 
       logger.warn(
           "A snapshot was interrupted while in-progress. " +
@@ -69,12 +73,13 @@ public class SnapshotCreator extends BackupCreator {
       return;
     }
 
-    completionTime = new Date();
+    endTime = new Date();
+    status = BackupStatus.COMPLETED;
 
-    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-    formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+    SimpleDateFormat rfc8601Formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    rfc8601Formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-    String completionMessage = "Snapshot completed at " + formatter.format(completionTime);
+    String completionMessage = "Snapshot completed at " + rfc8601Formatter.format(endTime);
 
     logger.info(completionMessage);
     requester.addChatMessage(new ChatComponentText(completionMessage));
