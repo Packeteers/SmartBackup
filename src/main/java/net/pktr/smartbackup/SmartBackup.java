@@ -40,7 +40,7 @@ public class SmartBackup {
   public static final String SOURCE_REVISION = "$SOURCE_REVISION$";
   public static final String BUILD_TIMESTAMP = "$BUILD_TIMESTAMP$";
 
-  private Logger logger;
+  private static Logger logger;
   private BackupManager manager;
 
   @EventHandler
@@ -66,5 +66,10 @@ public class SmartBackup {
     } catch (InterruptedException e) {
       return;
     }
+  }
+
+  /** Get SmartBackup's logger. */
+  public static Logger getLogger() {
+    return logger;
   }
 }
