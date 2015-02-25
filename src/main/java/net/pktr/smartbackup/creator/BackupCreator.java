@@ -16,12 +16,13 @@
 
 package net.pktr.smartbackup.creator;
 
+import net.pktr.smartbackup.SmartBackup;
+
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.world.MinecraftException;
 import net.minecraft.world.WorldServer;
-import net.pktr.smartbackup.SmartBackup;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Date;
