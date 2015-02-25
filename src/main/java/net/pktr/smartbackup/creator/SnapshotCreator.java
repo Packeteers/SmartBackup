@@ -37,10 +37,9 @@ public class SnapshotCreator extends BackupCreator {
    * Sets up a snapshot creation thread.
    *
    * @param sender The ICommandSender that requested this snapshot. Used for status messages.
-   * @param logger The Logger to report messages to.
    */
-  public SnapshotCreator(ICommandSender sender, Logger logger) {
-    super(sender, logger);
+  public SnapshotCreator(ICommandSender sender) {
+    super(sender);
     this.setName("Snapshot Thread");
   }
 

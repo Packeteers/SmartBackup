@@ -36,10 +36,9 @@ public class ArchiveCreator extends BackupCreator {
    * Sets up an archive creation thread.
    *
    * @param sender The ICommandSender that requested this archive. Used for status messages.
-   * @param logger The Logger to report messages to.
    */
-  public ArchiveCreator(ICommandSender sender, Logger logger) {
-    super(sender, logger);
+  public ArchiveCreator(ICommandSender sender) {
+    super(sender);
     this.setName("Archive Thread");
   }
 

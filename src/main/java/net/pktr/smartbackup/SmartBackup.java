@@ -52,7 +52,7 @@ public class SmartBackup {
 
   @EventHandler
   public void initializationEvent(FMLInitializationEvent event) {
-    manager = new BackupManager(logger);
+    manager = new BackupManager();
   }
 
   @EventHandler

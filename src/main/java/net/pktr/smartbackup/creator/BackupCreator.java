@@ -21,6 +21,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.world.MinecraftException;
 import net.minecraft.world.WorldServer;
+import net.pktr.smartbackup.SmartBackup;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Date;
@@ -82,9 +83,9 @@ public abstract class BackupCreator extends Thread {
    */
   protected ICommandSender interrupter = null;
 
-  public BackupCreator(ICommandSender sender, Logger log) {
+  public BackupCreator(ICommandSender sender) {
     requester = sender;
-    logger = log;
+    logger = SmartBackup.getLogger();
     status = BackupStatus.PENDING;
     requestTime = new Date();
   }

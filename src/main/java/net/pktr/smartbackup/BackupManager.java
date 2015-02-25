@@ -30,8 +30,8 @@ public class BackupManager {
   private Logger logger;
   private BackupCreator currentBackup;
 
-  public BackupManager(Logger log) {
-    logger = log;
+  public BackupManager() {
+    logger = SmartBackup.getLogger();
   }
 
   /**
@@ -63,7 +63,7 @@ public class BackupManager {
    * @param requester The {@code ICommandSender} that requested the snapshot.
    */
   public void startSnapshot(ICommandSender requester) {
-    currentBackup = new SnapshotCreator(requester, logger);
+    currentBackup = new SnapshotCreator(requester);
     currentBackup.start();
   }
 
@@ -73,7 +73,7 @@ public class BackupManager {
    * @param requester The {@code ICommandSender} that requested the archive.
    */
   public void startArchive(ICommandSender requester) {
-    currentBackup = new ArchiveCreator(requester, logger);
+    currentBackup = new ArchiveCreator(requester);
     currentBackup.start();
   }
 
