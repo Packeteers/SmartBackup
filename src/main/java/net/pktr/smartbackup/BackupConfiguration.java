@@ -90,7 +90,11 @@ public class BackupConfiguration {
     }
   }
 
-  /** Gets whether to notify all online players of backups. */
+  /**
+   * Gets whether to notify all online players of backups.
+   *
+   * @return Returns {@code true} if SmartBackup should notify all players.
+   */
   public boolean getNotifyAll() {
     return notifyAll.getBoolean();
   }
@@ -105,7 +109,11 @@ public class BackupConfiguration {
     config.save();
   }
 
-  /** Gets whether to notify online server ops of backups. */
+  /**
+   * Gets whether to notify online server ops of backups.
+   *
+   * @return Returns {@code true} if SmartBackup should notify ops.
+   */
   public boolean getNotifyOps() {
     return notifyOps.getBoolean();
   }
@@ -120,7 +128,11 @@ public class BackupConfiguration {
     config.save();
   }
 
-  /** Gets the list of files/folders to backup. */
+  /**
+   * Gets the list of files/folders to backup.
+   *
+   * @return List of files/folders to backup.
+   */
   public String[] getBackupIncludes() {
     return backupIncludes.getStringList();
   }
@@ -135,7 +147,11 @@ public class BackupConfiguration {
     config.save();
   }
 
-  /** Gets the list of files/folders to exclude from any includes. */
+  /**
+   * Gets the list of files/folders to exclude from any includes.
+   *
+   * @return List of files/folders to exclude from includes.
+   */
   public String[] getBackupExcludes() {
     return backupExcludes.getStringList();
   }

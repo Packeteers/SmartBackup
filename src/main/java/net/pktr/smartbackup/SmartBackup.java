@@ -70,12 +70,20 @@ public class SmartBackup {
     }
   }
 
-  /** Get SmartBackup's configuration. */
+  /**
+   * Get SmartBackup's configuration.
+   *
+   * @return SmartBackup's configuration.
+   */
   public static BackupConfiguration getConfiguration() {
     return config;
   }
 
-  /** Get SmartBackup's logger. */
+  /**
+   * Get SmartBackup's logger.
+   *
+   * @return SmartBackup's logger.
+   */
   public static Logger getLogger() {
     return logger;
   }
