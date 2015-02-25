@@ -18,6 +18,7 @@ package net.pktr.smartbackup.creator;
 
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.world.MinecraftException;
 import org.apache.logging.log4j.Logger;
 
 import java.text.SimpleDateFormat;
@@ -48,12 +49,39 @@ public class ArchiveCreator extends BackupCreator {
     requester.addChatMessage(new ChatComponentText("Starting archive"));
     status = BackupStatus.INPROGRESS;
 
-    // TODO: Save player and world data
+    boolean savingWasEnabled = this.getWorldSaving();
+    if (savingWasEnabled) {
+      this.changeWorldSaving(false);
+    }
+
+    this.savePlayerData();
+    try {
+      this.saveWorldData();
+    } catch (MinecraftException exception) {
+      this.error = exception;
+      this.status = BackupStatus.FAILED;
+      logger.error(
+          "There was en error while saving world data prior to a archive. " +
+              "No data has been backed up.",
+          exception
+      );
+      requester.addChatMessage(
+          new ChatComponentText(
+              "There was an error saving the world data before taking your archive. " +
+                  "No data has been backed up."
+          )
+      );
+      return;
+    }
 
     // TODO: Create archive
 
-    status = BackupStatus.COMPLETED;
+    if (savingWasEnabled) {
+      this.changeWorldSaving(true);
+    }
+
     endTime = new Date();
+    status = BackupStatus.COMPLETED;
 
     SimpleDateFormat rfc8601Formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     rfc8601Formatter.setTimeZone(TimeZone.getTimeZone("UTC"));

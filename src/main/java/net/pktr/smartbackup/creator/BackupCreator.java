@@ -17,6 +17,10 @@
 package net.pktr.smartbackup.creator;
 
 import net.minecraft.command.ICommandSender;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.management.ServerConfigurationManager;
+import net.minecraft.world.MinecraftException;
+import net.minecraft.world.WorldServer;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Date;
@@ -156,5 +160,70 @@ public abstract class BackupCreator extends Thread {
    */
   public void setInterrupter(ICommandSender interrupter) {
     this.interrupter = interrupter;
+  }
+
+  /** Tell the server to save player data. */
+  protected void savePlayerData() {
+    ServerConfigurationManager confMgr = MinecraftServer.getServer().getConfigurationManager();
+    if (confMgr != null) {
+      confMgr.saveAllPlayerData();
+    }
+  }
+
+  /**
+   * Tell each world's WorldServer to save the world chunks.
+   *
+   * @throws MinecraftException Passed on from saveAllChunks on the WorldServer.
+   */
+  protected void saveWorldData() throws MinecraftException {
+    MinecraftServer server = MinecraftServer.getServer();
+
+    for (int i = 0; i < server.worldServers.length; i++) {
+      WorldServer worldServer = server.worldServers[i];
+      if (worldServer != null) {
+        worldServer.saveAllChunks(true, null);
+      }
+    }
+  }
+
+  /**
+   * Gets the current status of world saving.
+   *
+   * <p>Since world saving is specified on a per-world basis, it is possible for world saving to
+   * be enabled on one world but be disabled on another. This method will return {@code true} if
+   * <i>any world</i> on the server has saving enabled, only returning {@code false} if all worlds
+   * have saving disabled.</p>
+   *
+   * @return {@code true} if any worlds on the server have saving enabled, false if none do.
+   */
+  protected boolean getWorldSaving() {
+    MinecraftServer server = MinecraftServer.getServer();
+
+    for (int i = 0; i < server.worldServers.length; i++) {
+      WorldServer worldServer = server.worldServers[i];
+      if (worldServer != null) {
+        if (worldServer.levelSaving) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Changes the status of world saving on all worlds on this server.
+   *
+   * @param savingEnabled If saving should be enabled.
+   */
+  protected void changeWorldSaving(boolean savingEnabled) {
+    MinecraftServer server = MinecraftServer.getServer();
+
+    for (int i = 0; i < server.worldServers.length; i++) {
+      WorldServer worldServer = server.worldServers[i];
+      if (worldServer != null) {
+        worldServer.levelSaving = savingEnabled;
+      }
+    }
   }
 }
