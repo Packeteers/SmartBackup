@@ -42,7 +42,7 @@ public class BackupManager {
   public boolean backupInProgress() {
     return currentBackup != null &&
         (currentBackup.getStatus() == BackupCreator.BackupStatus.PENDING ||
-        currentBackup.getStatus() == BackupCreator.BackupStatus.INPROGRESS);
+            currentBackup.getStatus() == BackupCreator.BackupStatus.INPROGRESS);
   }
 
   /**
