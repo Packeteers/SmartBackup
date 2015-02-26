@@ -23,6 +23,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.util.Arrays;
 
+/** Handles configuration settings for SmartBackup. */
 public class BackupConfiguration {
   private Logger logger;
   private Configuration config;
