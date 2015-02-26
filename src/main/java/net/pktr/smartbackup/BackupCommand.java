@@ -24,7 +24,6 @@ import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
-import net.minecraft.util.ChatComponentText;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -35,9 +34,11 @@ import java.util.TimeZone;
  */
 public class BackupCommand extends CommandBase {
   private BackupManager manager;
+  private Messenger messenger;
 
   public BackupCommand(BackupManager man) {
     manager = man;
+    messenger = SmartBackup.getMessenger();
   }
 
   @Override
@@ -67,7 +68,7 @@ public class BackupCommand extends CommandBase {
           return;
         }
 
-        sender.addChatMessage(new ChatComponentText("Backup cancelled"));
+        messenger.unicastInfo(sender, "Backup cancelled");
 
         break;
       case "help":
@@ -82,96 +83,90 @@ public class BackupCommand extends CommandBase {
         };
 
         for (String line : helpText) {
-          sender.addChatMessage(new ChatComponentText(line));
+          messenger.unicastInfo(sender, line);
         }
 
         break;
       case "status":
         if (manager.backupInProgress()) {
-          sender.addChatMessage(new ChatComponentText("A backup is in progress:"));
+          messenger.unicastInfo(sender, "A backup is in progress:");
         } else {
-          sender.addChatMessage(new ChatComponentText("Ready to take a backup!"));
+          messenger.unicastInfo(sender, "Ready to take a backup!");
           if (manager.getCurrentBackup() == null) {
             break;
           } else {
-            sender.addChatMessage(new ChatComponentText("Last backup requested:"));
+            messenger.unicastInfo(sender, "Last backup requested:");
           }
         }
 
         BackupCreator currentBackup = manager.getCurrentBackup();
 
         if (currentBackup instanceof SnapshotCreator) {
-          sender.addChatMessage(new ChatComponentText("  Type: Snapshot"));
+          messenger.unicastInfo(sender, "  Type: Snapshot");
         } else if (currentBackup instanceof ArchiveCreator) {
-          sender.addChatMessage(new ChatComponentText("  Type: Archive"));
+          messenger.unicastInfo(sender, "  Type: Archive");
         }
 
-        sender.addChatMessage(
-            new ChatComponentText(
-                "  Requested by: " + currentBackup.getRequester().getCommandSenderName()
-            )
+        messenger.unicastInfo(
+            sender,
+            "  Requested by: " + currentBackup.getRequester().getCommandSenderName()
         );
 
         SimpleDateFormat rfc8601Formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         rfc8601Formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-        sender.addChatMessage(
-            new ChatComponentText(
-                "  Requested at: " + rfc8601Formatter.format(currentBackup.getRequestTime())
-            )
+        messenger.unicastInfo(
+            sender,
+            "  Requested at: " + rfc8601Formatter.format(currentBackup.getRequestTime())
         );
 
-        switch(currentBackup.getStatus()) {
+        switch (currentBackup.getStatus()) {
           case PENDING:
-            sender.addChatMessage(new ChatComponentText("  Status: Pending"));
+            messenger.unicastInfo(sender, "  Status: Pending");
+
             break;
           case INPROGRESS:
-            sender.addChatMessage(new ChatComponentText("  Status: In-Progress"));
+            messenger.unicastInfo(sender, "  Status: In-Progress");
+
             break;
           case COMPLETED:
-            sender.addChatMessage(new ChatComponentText("  Status: Completed Successfully"));
-
-            sender.addChatMessage(
-                new ChatComponentText(
-                    "  Completed at: " + rfc8601Formatter.format(currentBackup.getEndTime())
-                )
+            messenger.unicastInfo(sender, "  Status: Completed Successfully");
+            messenger.unicastInfo(
+                sender,
+                "  Completed at: " + rfc8601Formatter.format(currentBackup.getEndTime())
             );
+
             break;
           case INTERRUPTED:
-            sender.addChatMessage(new ChatComponentText("  Status: Interrupted"));
+            messenger.unicastInfo(sender, "  Status: Interrupted");
 
-            sender.addChatMessage(
-                new ChatComponentText(
-                    "  Interrupted at: " + rfc8601Formatter.format(currentBackup.getEndTime())
-                )
+            messenger.unicastInfo(
+                sender,
+                "  Interrupted at: " + rfc8601Formatter.format(currentBackup.getEndTime())
             );
 
             if (currentBackup.getInterrupter() != null) {
-              sender.addChatMessage(
-                  new ChatComponentText(
-                      "  Interrupted by: " + currentBackup.getInterrupter().getCommandSenderName()
-                  )
+              messenger.unicastInfo(
+                  sender,
+                  "  Interrupted by: " + currentBackup.getInterrupter().getCommandSenderName()
               );
             } else {
-              sender.addChatMessage(
-                  new ChatComponentText("  Interrupted by an unknown force (probably the JVM)")
+              messenger.unicastInfo(
+                  sender,
+                  "  Interrupted by an unknown force (probably the JVM)"
               );
             }
 
             break;
           case FAILED:
-            sender.addChatMessage(new ChatComponentText("  Status: Failed"));
-
-            sender.addChatMessage(
-                new ChatComponentText(
-                    "  Failed at: " + rfc8601Formatter.format(currentBackup.getEndTime())
-                )
+            messenger.unicastInfo(sender, "  Status: Failed");
+            messenger.unicastInfo(
+                sender,
+                "  Failed at: " + rfc8601Formatter.format(currentBackup.getEndTime())
             );
-
-            sender.addChatMessage(
-                new ChatComponentText(
-                    "  Error: " + currentBackup.getError().getMessage()
-                )
+            messenger.unicastInfo(
+                sender,
+                "  Error: " + currentBackup.getError().getMessage()
             );
 
             break;
@@ -192,7 +187,7 @@ public class BackupCommand extends CommandBase {
 
         break;
       case "version":
-        sender.addChatMessage(new ChatComponentText("SmartBackup " + SmartBackup.VERSION));
+        messenger.unicastInfo(sender, "SmartBackup " + SmartBackup.VERSION);
 
         String buildInfo = "Built " + SmartBackup.BUILD_TIMESTAMP;
 
@@ -204,7 +199,7 @@ public class BackupCommand extends CommandBase {
           buildInfo += " from " + SmartBackup.SOURCE_REVISION;
         }
 
-        sender.addChatMessage(new ChatComponentText(buildInfo));
+        messenger.unicastInfo(sender, buildInfo);
 
         break;
       default:

@@ -43,11 +43,13 @@ public class SmartBackup {
   private static Logger logger = null;
   private BackupManager manager;
   private static BackupConfiguration config = null;
+  private static Messenger messenger = null;
 
   @EventHandler
   public void preInitializationEvent(FMLPreInitializationEvent event) {
     logger = event.getModLog();
     config = new BackupConfiguration(event.getSuggestedConfigurationFile());
+    messenger = new Messenger();
   }
 
   @EventHandler
@@ -86,5 +88,14 @@ public class SmartBackup {
    */
   public static Logger getLogger() {
     return logger;
+  }
+
+  /**
+   * Get SmartBackup's messenger.
+   *
+   * @return SmartBackup's messenger.
+   */
+  public static Messenger getMessenger() {
+    return messenger;
   }
 }

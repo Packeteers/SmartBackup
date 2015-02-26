@@ -16,8 +16,10 @@
 
 package net.pktr.smartbackup.creator;
 
+import net.pktr.smartbackup.Messenger;
+import net.pktr.smartbackup.SmartBackup;
+
 import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.MinecraftException;
 
 import java.text.SimpleDateFormat;
@@ -43,9 +45,11 @@ public class ArchiveCreator extends BackupCreator {
 
   @Override
   public void run() {
-    logger.info("Starting archive");
-    requester.addChatMessage(new ChatComponentText("Starting archive"));
+    Messenger messenger = SmartBackup.getMessenger();
+
     status = BackupStatus.INPROGRESS;
+
+    messenger.info(requester, "Starting archive");
 
     boolean savingWasEnabled = this.getWorldSaving();
     if (savingWasEnabled) {
@@ -58,17 +62,13 @@ public class ArchiveCreator extends BackupCreator {
     } catch (MinecraftException exception) {
       this.error = exception;
       this.status = BackupStatus.FAILED;
-      logger.error(
-          "There was en error while saving world data prior to a archive. " +
-              "No data has been backed up.",
+
+      messenger.error(
+          requester,
+          "Unable to save world data for an archive. No data has been backed up.",
           exception
       );
-      requester.addChatMessage(
-          new ChatComponentText(
-              "There was an error saving the world data before taking your archive. " +
-                  "No data has been backed up."
-          )
-      );
+
       return;
     }
 
@@ -84,9 +84,6 @@ public class ArchiveCreator extends BackupCreator {
     SimpleDateFormat rfc8601Formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     rfc8601Formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-    String completionMessage = "Archive completed at " + rfc8601Formatter.format(endTime);
-
-    logger.info(completionMessage);
-    requester.addChatMessage(new ChatComponentText(completionMessage));
+    messenger.info(requester, "Archive completed at " + rfc8601Formatter.format(endTime));
   }
 }

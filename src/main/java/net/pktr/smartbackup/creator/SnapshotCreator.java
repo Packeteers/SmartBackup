@@ -16,8 +16,10 @@
 
 package net.pktr.smartbackup.creator;
 
+import net.pktr.smartbackup.Messenger;
+import net.pktr.smartbackup.SmartBackup;
+
 import net.minecraft.command.ICommandSender;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.MinecraftException;
 
 import java.text.SimpleDateFormat;
@@ -44,9 +46,11 @@ public class SnapshotCreator extends BackupCreator {
 
   @Override
   public void run() {
-    logger.info("Starting snapshot");
-    requester.addChatMessage(new ChatComponentText("Starting snapshot..."));
+    Messenger messenger = SmartBackup.getMessenger();
+
     status = BackupStatus.INPROGRESS;
+
+    messenger.info(requester, "Starting snapshot");
 
     boolean savingWasEnabled = this.getWorldSaving();
     if (savingWasEnabled) {
@@ -59,17 +63,13 @@ public class SnapshotCreator extends BackupCreator {
     } catch (MinecraftException exception) {
       this.error = exception;
       this.status = BackupStatus.FAILED;
-      logger.error(
-          "There was en error while saving world data prior to a snapshot. " +
-              "No data has been backed up.",
+
+      messenger.error(
+          requester,
+          "Unable to save world data for a snapshot. No data has been backed up.",
           exception
       );
-      requester.addChatMessage(
-          new ChatComponentText(
-              "There was an error saving the world data before taking your snapshot. " +
-                  "No data has been backed up."
-          )
-      );
+
       return;
     }
 
@@ -81,15 +81,9 @@ public class SnapshotCreator extends BackupCreator {
       endTime = new Date();
       status = BackupStatus.INTERRUPTED;
 
-      logger.warn(
-          "A snapshot was interrupted while in-progress. " +
-              "Any partially-created data will be deleted."
-      );
-
-      requester.addChatMessage(
-          new ChatComponentText(
-              "Your snapshot was interrupted. Any partially-created data will be deleted."
-          )
+      messenger.info(
+          requester,
+          "The snapshot was interrupted. Any temporary backup files will be deleted."
       );
 
       return;
@@ -105,9 +99,6 @@ public class SnapshotCreator extends BackupCreator {
     SimpleDateFormat rfc8601Formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
     rfc8601Formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
 
-    String completionMessage = "Snapshot completed at " + rfc8601Formatter.format(endTime);
-
-    logger.info(completionMessage);
-    requester.addChatMessage(new ChatComponentText(completionMessage));
+    messenger.info(requester, "Snapshot completed at " + rfc8601Formatter.format(endTime));
   }
 }
