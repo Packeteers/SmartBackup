@@ -65,6 +65,7 @@ public class SnapshotCreator extends BackupCreator {
     } catch (MinecraftException exception) {
       this.error = exception;
       this.status = BackupStatus.FAILED;
+      endTime = new Date();
 
       messenger.error(
           requester,
