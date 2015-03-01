@@ -33,6 +33,12 @@ public class Messenger {
     config = SmartBackup.getConfiguration();
   }
 
+  /**
+   * Show error output to only a specific recipient.
+   *
+   * @param sender Who to send the error message to.
+   * @param message The error message to report.
+   */
   public void unicastError(ICommandSender sender, ChatComponentText message) {
     unicastError(sender, message, null);
   }
