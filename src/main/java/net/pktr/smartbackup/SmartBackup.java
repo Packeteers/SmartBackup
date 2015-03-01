@@ -73,27 +73,27 @@ public class SmartBackup {
   }
 
   /**
-   * Get SmartBackup's configuration.
+   * Returns the {@link BackupConfiguration} object providing config support.
    *
-   * @return SmartBackup's configuration.
+   * @return {@link BackupConfiguration} to get configuration values.
    */
   public static BackupConfiguration getConfiguration() {
     return config;
   }
 
   /**
-   * Get SmartBackup's logger.
+   * Returns the {@code Logger} handed to SmartBackup from FML initialization.
    *
-   * @return SmartBackup's logger.
+   * @return {@code Logger} to use for mod-related logging.
    */
   public static Logger getLogger() {
     return logger;
   }
 
   /**
-   * Get SmartBackup's messenger.
+   * Returns the {@link Messenger} to use when sending messages to command senders.
    *
-   * @return SmartBackup's messenger.
+   * @return {@link Messenger} to send messages to command senders.
    */
   public static Messenger getMessenger() {
     return messenger;
