@@ -16,6 +16,7 @@
 
 package net.pktr.smartbackup.creator;
 
+import net.pktr.smartbackup.BackupConfiguration;
 import net.pktr.smartbackup.Messenger;
 import net.pktr.smartbackup.SmartBackup;
 
@@ -47,6 +48,7 @@ public class SnapshotCreator extends BackupCreator {
   @Override
   public void run() {
     Messenger messenger = SmartBackup.getMessenger();
+    BackupConfiguration config = SmartBackup.getConfiguration();
 
     status = BackupStatus.INPROGRESS;
 
@@ -70,6 +72,18 @@ public class SnapshotCreator extends BackupCreator {
           exception
       );
 
+      return;
+    }
+
+    String[] backupIncludes = config.getBackupIncludes();
+    String[] backupExcludes = config.getBackupExcludes();
+
+    if (backupIncludes.length == 0) {
+      // I might want to use a better error class here
+      this.error = new Throwable("There are no configured targets for backups in the config file!");
+      this.status = BackupStatus.FAILED;
+      endTime = new Date();
+      messenger.error(requester, this.error.getMessage());
       return;
     }
 
