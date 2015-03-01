@@ -101,11 +101,7 @@ public class BackupCommand extends CommandBase {
 
         BackupCreator currentBackup = manager.getCurrentBackup();
 
-        if (currentBackup instanceof SnapshotCreator) {
-          messenger.unicastInfo(sender, "  Type: Snapshot");
-        } else if (currentBackup instanceof ArchiveCreator) {
-          messenger.unicastInfo(sender, "  Type: Archive");
-        }
+        messenger.unicastInfo(sender, "  Type: " + currentBackup.getBackupType());
 
         messenger.unicastInfo(
             sender,
