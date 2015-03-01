@@ -16,16 +16,7 @@
 
 package net.pktr.smartbackup.creator;
 
-import net.pktr.smartbackup.BackupConfiguration;
-import net.pktr.smartbackup.Messenger;
-import net.pktr.smartbackup.SmartBackup;
-
 import net.minecraft.command.ICommandSender;
-import net.minecraft.world.MinecraftException;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * Handles creation of snapshots.
@@ -45,75 +36,18 @@ public class SnapshotCreator extends BackupCreator {
     this.setName("Snapshot Thread");
   }
 
+  /** {@inheritDoc} */
   @Override
-  public void run() {
-    Messenger messenger = SmartBackup.getMessenger();
-    BackupConfiguration config = SmartBackup.getConfiguration();
+  public String getBackupType() {
+    return "snapshot";
+  }
 
-    status = BackupStatus.INPROGRESS;
-
-    messenger.info(requester, "Starting snapshot");
-
-    boolean savingWasEnabled = this.getWorldSaving();
-    if (savingWasEnabled) {
-      this.changeWorldSaving(false);
-    }
-
-    this.savePlayerData();
-    try {
-      this.saveWorldData();
-    } catch (MinecraftException exception) {
-      this.error = exception;
-      this.status = BackupStatus.FAILED;
-      endTime = new Date();
-
-      messenger.error(
-          requester,
-          "Unable to save world data for a snapshot. No data has been backed up.",
-          exception
-      );
-
-      return;
-    }
-
-    String[] backupIncludes = config.getBackupIncludes();
-    String[] backupExcludes = config.getBackupExcludes();
-
-    if (backupIncludes.length == 0) {
-      // I might want to use a better error class here
-      this.error = new Throwable("There are no configured targets for backups in the config file!");
-      this.status = BackupStatus.FAILED;
-      endTime = new Date();
-      messenger.error(requester, this.error.getMessage());
-      return;
-    }
-
+  /** Creates a snapshot. */
+  @Override
+  protected void createBackup() throws InterruptedException {
+    messenger.info(requester, "Hello from within the archive creation method!");
     // TODO: Create snapshot
-    try {
-      // Fake work
-      sleep(10000);
-    } catch (InterruptedException e) {
-      endTime = new Date();
-      status = BackupStatus.INTERRUPTED;
-
-      messenger.info(
-          requester,
-          "The snapshot was interrupted. Any temporary backup files will be deleted."
-      );
-
-      return;
-    }
-
-    if (savingWasEnabled) {
-      this.changeWorldSaving(true);
-    }
-
-    endTime = new Date();
-    status = BackupStatus.COMPLETED;
-
-    SimpleDateFormat rfc8601Formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-    rfc8601Formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-    messenger.info(requester, "Snapshot completed at " + rfc8601Formatter.format(endTime));
+    // Fake work
+    sleep(10000);
   }
 }

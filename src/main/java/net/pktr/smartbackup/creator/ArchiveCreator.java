@@ -16,15 +16,7 @@
 
 package net.pktr.smartbackup.creator;
 
-import net.pktr.smartbackup.Messenger;
-import net.pktr.smartbackup.SmartBackup;
-
 import net.minecraft.command.ICommandSender;
-import net.minecraft.world.MinecraftException;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * Handles creation of archives.
@@ -43,48 +35,15 @@ public class ArchiveCreator extends BackupCreator {
     this.setName("Archive Thread");
   }
 
+  /** {@inheritDoc} */
   @Override
-  public void run() {
-    Messenger messenger = SmartBackup.getMessenger();
+  public String getBackupType() {
+    return "archive";
+  }
 
-    status = BackupStatus.INPROGRESS;
-
-    messenger.info(requester, "Starting archive");
-
-    boolean savingWasEnabled = this.getWorldSaving();
-    if (savingWasEnabled) {
-      this.changeWorldSaving(false);
-    }
-
-    this.savePlayerData();
-    try {
-      this.saveWorldData();
-    } catch (MinecraftException exception) {
-      this.error = exception;
-      this.status = BackupStatus.FAILED;
-      endTime = new Date();
-
-      messenger.error(
-          requester,
-          "Unable to save world data for an archive. No data has been backed up.",
-          exception
-      );
-
-      return;
-    }
-
+  @Override
+  protected void createBackup(){
     // TODO: Create archive
-
-    if (savingWasEnabled) {
-      this.changeWorldSaving(true);
-    }
-
-    endTime = new Date();
-    status = BackupStatus.COMPLETED;
-
-    SimpleDateFormat rfc8601Formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-    rfc8601Formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-    messenger.info(requester, "Archive completed at " + rfc8601Formatter.format(endTime));
+    messenger.info(requester, "Hello from within the archive creation method!");
   }
 }

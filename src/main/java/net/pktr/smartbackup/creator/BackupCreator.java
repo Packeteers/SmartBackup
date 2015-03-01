@@ -16,18 +16,21 @@
 
 package net.pktr.smartbackup.creator;
 
+import net.pktr.smartbackup.BackupConfiguration;
+import net.pktr.smartbackup.Messenger;
 import net.pktr.smartbackup.SmartBackup;
 
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.management.ServerConfigurationManager;
 import net.minecraft.world.MinecraftException;
 import net.minecraft.world.WorldServer;
 import org.apache.logging.log4j.Logger;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
-/** Stores a requester and logger for a derivative creator thread class. */
+/** Defines the common parts of a backup creator. */
 public abstract class BackupCreator extends Thread {
   /** Represents the status of the backup. */
   public static enum BackupStatus {
@@ -42,9 +45,6 @@ public abstract class BackupCreator extends Thread {
     /** The backup failed with an error. */
     FAILED
   }
-
-  /** SmartBackup's {@code Logger} */
-  protected final Logger logger;
 
   /** The status of this backup. */
   protected BackupStatus status;
@@ -73,7 +73,8 @@ public abstract class BackupCreator extends Thread {
    *
    * <p>This can be because of successful completion, interruption, or error.</p>
    *
-   * <p>Until this backup ends, this is {@code null}.</p>
+   * <p>Until this backup ends,
+   * his is {@code null}.</p>
    */
   protected Date endTime = null;
 
@@ -84,12 +85,35 @@ public abstract class BackupCreator extends Thread {
    */
   protected ICommandSender interrupter = null;
 
+  /** Messenger from SmartBackup mod class, used to send messages to players and the console. */
+  protected final Messenger messenger = SmartBackup.getMessenger();
+
+  /** Configuration from SmartBackup. */
+  protected final BackupConfiguration config = SmartBackup.getConfiguration();
+
+  /** Logger used for output that can't go through the messenger. */
+  protected final Logger logger = SmartBackup.getLogger();
+
   public BackupCreator(ICommandSender sender) {
     requester = sender;
-    logger = SmartBackup.getLogger();
-    status = BackupStatus.PENDING;
+    setStatus(BackupStatus.PENDING);
     requestTime = new Date();
   }
+
+  /**
+   * The backup process employed by this backup creator, this is called from the backup thread to
+   * run the backup.
+   */
+  protected abstract void createBackup() throws InterruptedException;
+
+  /**
+   * Returns a string name for the type of backup being created.
+   *
+   * <p>This is returned in all-lowercase.</p>
+   *
+   * @return The type of backup this is (eg "snapshot" or "archive").
+   */
+  public abstract String getBackupType();
 
   /**
    * Gets the {@code ICommandSender} that requested the backup.
@@ -158,74 +182,153 @@ public abstract class BackupCreator extends Thread {
   /**
    * Sets the {@code ICommandSender} that interrupted the backup.
    *
-   * @param interrupter {@code ICommandSender} that interrupted the backup.
+   * @param inter {@code ICommandSender} that interrupted the backup.
    */
-  public void setInterrupter(ICommandSender interrupter) {
-    this.interrupter = interrupter;
-  }
-
-  /** Tell the server to save player data. */
-  protected void savePlayerData() {
-    ServerConfigurationManager confMgr = MinecraftServer.getServer().getConfigurationManager();
-    if (confMgr != null) {
-      confMgr.saveAllPlayerData();
-    }
+  public void setInterrupter(ICommandSender inter) {
+    interrupter = inter;
   }
 
   /**
-   * Tell each world's WorldServer to save the world chunks.
+   * Sets the world saving setting for all worlds on the server.
    *
-   * @throws MinecraftException Passed on from saveAllChunks on the WorldServer.
+   * @param worldSaving Whether to enable saving.
    */
-  protected void saveWorldData() throws MinecraftException {
+  private void setWorldSaving(boolean worldSaving) {
     MinecraftServer server = MinecraftServer.getServer();
-
-    for (int i = 0; i < server.worldServers.length; i++) {
-      WorldServer worldServer = server.worldServers[i];
-      if (worldServer != null) {
-        worldServer.saveAllChunks(true, null);
+    for (WorldServer world : server.worldServers) {
+      if (world != null) {
+        world.levelSaving = worldSaving;
       }
     }
   }
 
   /**
-   * Gets the current status of world saving.
+   * Update this backup's status.
    *
-   * <p>Since world saving is specified on a per-world basis, it is possible for world saving to
-   * be enabled on one world but be disabled on another. This method will return {@code true} if
-   * <i>any world</i> on the server has saving enabled, only returning {@code false} if all worlds
-   * have saving disabled.</p>
+   * <p>Updates the end time for {@link #getEndTime}.</p>
    *
-   * @return {@code true} if any worlds on the server have saving enabled, false if none do.
+   * <p>If you're setting the state to {@code FAILED}, you need to set an error first or this will
+   * throw a RuntimeException.</p>
+   *
+   * @param newStatus Status to set to.
    */
-  protected boolean getWorldSaving() {
+  private void setStatus(BackupStatus newStatus) {
+    RuntimeException exception = null;
+
+    status = newStatus;
+    switch (newStatus) {
+      case FAILED:
+        if (error == null) {
+          // Make sure the error that caused the failure is saved.
+          exception = new RuntimeException("State set to FAILED without setting an error.");
+        }
+        // Fall through
+      case INTERRUPTED:
+      case COMPLETED:
+        endTime = new Date();
+        break;
+      default:
+        // Others don't have special state-change code
+    }
+
+    if (exception != null) {
+      throw exception;
+    }
+  }
+
+  /**
+   * The generic method for taking backups. This does setup for backups, calls the
+   * {@link #createBackup} method of the derivative class to create the backup, then does does the
+   * completion code for backups.
+   */
+  @Override
+  public void run() {
     MinecraftServer server = MinecraftServer.getServer();
 
-    for (int i = 0; i < server.worldServers.length; i++) {
-      WorldServer worldServer = server.worldServers[i];
-      if (worldServer != null) {
-        if (worldServer.levelSaving) {
-          return true;
+    setStatus(BackupStatus.INPROGRESS);
+
+    messenger.info(requester, "Starting " + getBackupType());
+
+    // Save player data (I guess we call this and hope it works?)
+    MinecraftServer.getServer().getConfigurationManager().saveAllPlayerData();
+
+    // Take note of whether saving was enabled in the first place
+    boolean savingWasEnabled = false;
+    // If any of the worlds have saving enabled, assume saving is enabled for all of them.
+    for (WorldServer world : server.worldServers) {
+      if (world != null) {
+        if (world.levelSaving) {
+          savingWasEnabled = true;
+          break;
         }
       }
     }
 
-    return false;
-  }
+    setWorldSaving(false);
 
-  /**
-   * Changes the status of world saving on all worlds on this server.
-   *
-   * @param savingEnabled If saving should be enabled.
-   */
-  protected void changeWorldSaving(boolean savingEnabled) {
-    MinecraftServer server = MinecraftServer.getServer();
-
-    for (int i = 0; i < server.worldServers.length; i++) {
-      WorldServer worldServer = server.worldServers[i];
-      if (worldServer != null) {
-        worldServer.levelSaving = savingEnabled;
+    // Save world data
+    try {
+      for (WorldServer world : server.worldServers) {
+        if (world != null) {
+          world.saveAllChunks(true, null);
+        }
       }
+    } catch (MinecraftException exception) {
+      error = exception;
+      setStatus(BackupStatus.FAILED);
+
+      messenger.error(
+          requester,
+          "Unable to save world for a " + getBackupType() + ". No data has been backed up.",
+          exception
+      );
+
+      setWorldSaving(savingWasEnabled);
+
+      return;
     }
+
+    String[] backupIncludes = config.getBackupIncludes();
+    String[] backupExcludes = config.getBackupExcludes();
+
+    if (backupIncludes.length == 0) {
+      // I might want to use a better error class here
+      error = new Throwable("There are no configured targets for backups in the config file!");
+      setStatus(BackupStatus.FAILED);
+
+      messenger.error(requester, error.getMessage());
+
+      setWorldSaving(savingWasEnabled);
+
+      return;
+    }
+
+    // TODO: Compile a list of files to backup from backupIncludes and backupExcludes
+
+    try {
+      // TODO: Pass list of files to createBackup method
+      createBackup();
+    } catch (InterruptedException e) {
+      setStatus(BackupStatus.INTERRUPTED);
+
+      messenger.info(
+          requester,
+          "The " + getBackupType() + " was interrupted. Any temporary backup files will be deleted."
+      );
+
+      setWorldSaving(savingWasEnabled);
+
+      return;
+    }
+
+    setWorldSaving(savingWasEnabled);
+
+    setStatus(BackupStatus.COMPLETED);
+
+    SimpleDateFormat rfc8601Formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    rfc8601Formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+    messenger.info(requester, "Completed " + getBackupType() + " at " +
+        rfc8601Formatter.format(endTime));
   }
 }
