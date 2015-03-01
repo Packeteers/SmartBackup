@@ -91,9 +91,10 @@ public class SmartBackup {
   }
 
   /**
-   * Returns the {@link Messenger} to use when sending messages to command senders.
+   * Returns the {@link Messenger} to use when sending messages to command senders, players, and
+   * the console.
    *
-   * @return {@link Messenger} to send messages to command senders.
+   * @return {@link Messenger} to send messages.
    */
   public static Messenger getMessenger() {
     return messenger;
