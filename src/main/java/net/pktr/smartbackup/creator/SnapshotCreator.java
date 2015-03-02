@@ -45,7 +45,6 @@ public class SnapshotCreator extends BackupCreator {
   /** Creates a snapshot. */
   @Override
   protected void createBackup() throws InterruptedException {
-    messenger.info(requester, "Hello from within the archive creation method!");
     // TODO: Create snapshot
     // Fake work
     sleep(10000);

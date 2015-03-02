@@ -44,6 +44,5 @@ public class ArchiveCreator extends BackupCreator {
   @Override
   protected void createBackup(){
     // TODO: Create archive
-    messenger.info(requester, "Hello from within the archive creation method!");
   }
 }
