@@ -208,7 +208,9 @@ public abstract class BackupCreator extends Thread {
    * <p>Updates the end time for {@link #getEndTime}.</p>
    *
    * <p>If you're setting the state to {@code FAILED}, you need to set an error first or this will
-   * throw a RuntimeException.</p>
+   * throw a RuntimeException. Because of this, make sure that you make any calls needed to
+   * {@link #setWorldSaving} before running this method to make sure that you don't disable world
+   * saving until it's re-enabled.</p>
    *
    * @param newStatus Status to set to.
    */
@@ -274,6 +276,8 @@ public abstract class BackupCreator extends Thread {
         }
       }
     } catch (MinecraftException exception) {
+      setWorldSaving(savingWasEnabled);
+
       error = exception;
       setStatus(BackupStatus.FAILED);
 
@@ -283,8 +287,6 @@ public abstract class BackupCreator extends Thread {
           exception
       );
 
-      setWorldSaving(savingWasEnabled);
-
       return;
     }
 
@@ -292,13 +294,13 @@ public abstract class BackupCreator extends Thread {
     String[] backupExcludes = config.getBackupExcludes();
 
     if (backupIncludes.length == 0) {
+      setWorldSaving(savingWasEnabled);
+
       // I might want to use a better error class here
       error = new Throwable("There are no configured targets for backups in the config file!");
       setStatus(BackupStatus.FAILED);
 
       messenger.error(requester, error.getMessage());
-
-      setWorldSaving(savingWasEnabled);
 
       return;
     }
@@ -309,14 +311,14 @@ public abstract class BackupCreator extends Thread {
       // TODO: Pass list of files to createBackup method
       createBackup();
     } catch (InterruptedException e) {
+      setWorldSaving(savingWasEnabled);
+
       setStatus(BackupStatus.INTERRUPTED);
 
       messenger.info(
           requester,
           "The " + getBackupType() + " was interrupted. Any temporary backup files will be deleted."
       );
-
-      setWorldSaving(savingWasEnabled);
 
       return;
     }
