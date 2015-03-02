@@ -283,7 +283,7 @@ public abstract class BackupCreator extends Thread {
 
       messenger.error(
           requester,
-          "Unable to save world for a " + getBackupType() + ". No data has been backed up.",
+          "Unable to save world for the " + getBackupType() + ". No data has been backed up.",
           exception
       );
 
