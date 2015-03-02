@@ -52,11 +52,11 @@ public abstract class BackupCreator extends Thread {
   /**
    * The error that caused this backup to fail.
    *
-   * <p>This is {@code null} unless the backup is in the {@code FAILED} state.</p>
+   * <p>This is {@code null} unless the backup is in the {@link BackupStatus#FAILED} state.</p>
    */
   protected Throwable error = null;
 
-  /** The {@code ICommandSender} that requested the backup. */
+  /** The {@link ICommandSender} that requested the backup. */
   protected final ICommandSender requester;
 
   /**
@@ -73,15 +73,14 @@ public abstract class BackupCreator extends Thread {
    *
    * <p>This can be because of successful completion, interruption, or error.</p>
    *
-   * <p>Until this backup ends,
-   * his is {@code null}.</p>
+   * <p>Until this backup ends, this is {@code null}.</p>
    */
   protected Date endTime = null;
 
   /**
-   * The {@code ICommandSender} that interrupted the backup.
+   * The {@link ICommandSender} that interrupted the backup.
    *
-   * <p>If this backup was not interrupted by an {@code ICommandSender}, this is {@code null}.</p>
+   * <p>If this backup was not interrupted by an {@link ICommandSender}, this is {@code null}.</p>
    */
   protected ICommandSender interrupter = null;
 
@@ -103,6 +102,8 @@ public abstract class BackupCreator extends Thread {
   /**
    * The backup process employed by this backup creator, this is called from the backup thread to
    * run the backup.
+   *
+   * @throws InterruptedException The backup was interrupted.
    */
   protected abstract void createBackup() throws InterruptedException;
 
@@ -116,9 +117,9 @@ public abstract class BackupCreator extends Thread {
   public abstract String getBackupType();
 
   /**
-   * Gets the {@code ICommandSender} that requested the backup.
+   * Gets the {@link ICommandSender} that requested the backup.
    *
-   * @return {@code ICommandSender} that requested the backup.
+   * @return {@link ICommandSender} that requested the backup.
    */
   public ICommandSender getRequester() {
     return requester;
@@ -152,7 +153,7 @@ public abstract class BackupCreator extends Thread {
   /**
    * Get the status of this backup.
    *
-   * @return {@code enum BackupStatus} representing this backup's status.
+   * @return {@link BackupStatus} representing this backup's status.
    */
   public BackupStatus getStatus() {
     return status;
@@ -168,21 +169,21 @@ public abstract class BackupCreator extends Thread {
   }
 
   /**
-   * Gets the {@code ICommandSender} that interrupted the backup.
+   * Gets the {@link ICommandSender} that interrupted the backup.
    *
-   * <p>If this backup was not interrupted or wasn't interrupted by an {@code ICommandSender}, this
+   * <p>If this backup was not interrupted or wasn't interrupted by an {@link ICommandSender}, this
    * is {@code null}.</p>
    *
-   * @return {@code ICommandSender} that interrupted the backup.
+   * @return {@link ICommandSender} that interrupted the backup.
    */
   public ICommandSender getInterrupter() {
     return interrupter;
   }
 
   /**
-   * Sets the {@code ICommandSender} that interrupted the backup.
+   * Sets the {@link ICommandSender} that interrupted the backup.
    *
-   * @param inter {@code ICommandSender} that interrupted the backup.
+   * @param inter {@link ICommandSender} that interrupted the backup.
    */
   public void setInterrupter(ICommandSender inter) {
     interrupter = inter;
@@ -207,10 +208,10 @@ public abstract class BackupCreator extends Thread {
    *
    * <p>Updates the end time for {@link #getEndTime}.</p>
    *
-   * <p>If you're setting the state to {@code FAILED}, you need to set an error first or this will
-   * throw a RuntimeException. Because of this, make sure that you make any calls needed to
-   * {@link #setWorldSaving} before running this method to make sure that you don't disable world
-   * saving until it's re-enabled.</p>
+   * <p>If you're setting the state to {@link BackupStatus#FAILED}, you need to set an error first
+   * or this will throw a RuntimeException. Because of this, make sure that you make any calls
+   * needed to {@link #setWorldSaving} before running this method to make sure that you don't
+   * disable world saving until it's re-enabled.</p>
    *
    * @param newStatus Status to set to.
    */

@@ -37,7 +37,7 @@ public class BackupManager {
   /**
    * Checks if there is currently a backup running.
    *
-   * @return true if a backup is running.
+   * @return {@code true} if a backup is running.
    */
   public boolean backupInProgress() {
     return currentBackup != null &&
@@ -50,7 +50,7 @@ public class BackupManager {
    *
    * <p>Useful for getting information regarding the currently-running or last-requested backup.</p>
    *
-   * @return The {@code BackupCreator} instance of the current backup. May also be {@code null} if
+   * @return The {@link BackupCreator} instance of the current backup. May also be {@code null} if
    * no backups have been run.
    */
   public BackupCreator getCurrentBackup() {
@@ -60,7 +60,7 @@ public class BackupManager {
   /**
    * Spawns creation process for a new snapshot.
    *
-   * @param requester The {@code ICommandSender} that requested the snapshot.
+   * @param requester The {@link ICommandSender} that requested the snapshot.
    */
   public void startSnapshot(ICommandSender requester) {
     currentBackup = new SnapshotCreator(requester);
@@ -70,7 +70,7 @@ public class BackupManager {
   /**
    * Spawns creation process for a new archive.
    *
-   * @param requester The {@code ICommandSender} that requested the archive.
+   * @param requester The {@link ICommandSender} that requested the archive.
    */
   public void startArchive(ICommandSender requester) {
     currentBackup = new ArchiveCreator(requester);
@@ -91,7 +91,7 @@ public class BackupManager {
   /**
    * Blocks until any child backup threads have exited, or the current thread is interrupted.
    *
-   * @throws InterruptedException from the join() method on the creator thread.
+   * @throws InterruptedException from {@link Thread#join} method on the creator thread.
    */
   public void waitForBackups() throws InterruptedException {
     if (currentBackup != null && currentBackup.isAlive()) {

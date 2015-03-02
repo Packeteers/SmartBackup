@@ -82,9 +82,9 @@ public class SmartBackup {
   }
 
   /**
-   * Returns the {@code Logger} handed to SmartBackup from FML initialization.
+   * Returns the {@link Logger} handed to SmartBackup from FML initialization.
    *
-   * @return {@code Logger} to use for mod-related logging.
+   * @return {@link Logger} to use for mod-related logging.
    */
   public static Logger getLogger() {
     return logger;

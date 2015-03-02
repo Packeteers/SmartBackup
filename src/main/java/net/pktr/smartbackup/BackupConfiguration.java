@@ -35,7 +35,7 @@ public class BackupConfiguration {
   /**
    * Loads a backup file and writes defaults if settings are missing.
    *
-   * @param file File to load backup from (and write to).
+   * @param file {@link File} to load backup from (and write to).
    */
   public BackupConfiguration(File file) {
     logger = SmartBackup.getLogger();
@@ -94,7 +94,7 @@ public class BackupConfiguration {
   /**
    * Gets whether to notify all online players of backups.
    *
-   * @return Returns {@code true} if SmartBackup should notify all players.
+   * @return Returns {@code true} if SmartBackup should notify everyone of status messages.
    */
   public boolean getNotifyAll() {
     return notifyAll.getBoolean();
@@ -103,7 +103,7 @@ public class BackupConfiguration {
   /**
    * Sets whether to notify all online players of backups.
    *
-   * @param setting {@code true} to enable notification to all players.
+   * @param setting {@code true} to enable sending status messages to everyone.
    */
   public void setNotifyAll(boolean setting) {
     notifyAll.set(setting);
@@ -113,7 +113,7 @@ public class BackupConfiguration {
   /**
    * Gets whether to notify online server ops of backups.
    *
-   * @return Returns {@code true} if SmartBackup should notify ops.
+   * @return Returns {@code true} if SmartBackup should notify server ops with status messages.
    */
   public boolean getNotifyOps() {
     return notifyOps.getBoolean();
@@ -122,7 +122,7 @@ public class BackupConfiguration {
   /**
    * Sets whether to notify online server ops of backups.
    *
-   * @param setting {@code true} to enable notification to server ops.
+   * @param setting {@code true} to enable sending status messages to server ops.
    */
   public void setNotifyOps(boolean setting) {
     notifyOps.set(setting);

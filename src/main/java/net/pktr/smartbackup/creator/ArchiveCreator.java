@@ -28,7 +28,7 @@ public class ArchiveCreator extends BackupCreator {
   /**
    * Sets up an archive creation thread.
    *
-   * @param sender The ICommandSender that requested this archive. Used for status messages.
+   * @param sender The {@link ICommandSender} that requested this archive. Used for status messages.
    */
   public ArchiveCreator(ICommandSender sender) {
     super(sender);

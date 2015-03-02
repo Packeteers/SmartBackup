@@ -29,7 +29,8 @@ public class SnapshotCreator extends BackupCreator {
   /**
    * Sets up a snapshot creation thread.
    *
-   * @param sender The ICommandSender that requested this snapshot. Used for status messages.
+   * @param sender The {@link ICommandSender} that requested this snapshot. Used for status
+   * messages.
    */
   public SnapshotCreator(ICommandSender sender) {
     super(sender);

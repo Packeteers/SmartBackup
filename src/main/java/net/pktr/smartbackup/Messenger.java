@@ -48,8 +48,8 @@ public class Messenger {
    *
    * @param sender Who to send the error message to.
    * @param message The error message to report.
-   * @param throwable {@code Throwable} error to output to console if the recipient is a
-   * {@code MinecraftServer}.
+   * @param throwable {@link Throwable} error to output to console if the recipient is a
+   * {@link MinecraftServer}.
    */
   public void unicastError(ICommandSender sender, ChatComponentText message, Throwable throwable) {
     if (sender instanceof MinecraftServer) {
@@ -110,8 +110,8 @@ public class Messenger {
    *
    * <p>Will also notify players or ops if configured in the configuration file.</p>
    *
-   * @param sender The {@code ICommandSender} related to this message. If the sender is not a
-   * {@code MinecraftServer}, it will receive a formatted message.
+   * @param sender The {@link ICommandSender} related to this message. If the sender is not a
+   * {@link MinecraftServer}, it will receive a formatted message.
    * @param message Error message to report.
    */
   public void error(ICommandSender sender, String message) {
@@ -123,10 +123,10 @@ public class Messenger {
    *
    * <p>Will also notify players or ops if configured in the configuration file.</p>
    *
-   * @param sender The {@code ICommandSender} related to this message. If the sender is not a
-   * {@code MinecraftServer}, it will receive a formatted message.
+   * @param sender The {@link ICommandSender} related to this message. If the sender is not a
+   * {@link MinecraftServer}, it will receive a formatted message.
    * @param message Error message to report.
-   * @param throwable Throwable error to include in server log.
+   * @param throwable {@link Throwable} error to include in server log.
    */
   public void error(ICommandSender sender, String message, Throwable throwable) {
     if (sender != null && !(sender instanceof MinecraftServer)) {
@@ -186,8 +186,8 @@ public class Messenger {
    *
    * <p>Will also notify players or ops if configured in the configuration file.</p>
    *
-   * @param sender The {@code ICommandSender} related to this message. If the sender is not a
-   * {@code MinecraftServer}, it will receive a chat message.
+   * @param sender The {@link ICommandSender} related to this message. If the sender is not a
+   * {@link MinecraftServer}, it will receive a chat message.
    * @param message The message to report.
    */
   public void info(ICommandSender sender, String message) {
