@@ -82,6 +82,10 @@ minecraft {
       TimeZone.getTimeZone("UTC"))
 }
 
+task wrapper(type: Wrapper) {
+  gradleVersion = '2.3'
+}
+
 processResources {
   inputs.property "version", project.version
   inputs.property "mcversion", project.minecraft.version
