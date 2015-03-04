@@ -55,15 +55,20 @@ public class BackupConfiguration {
     backupIncludes = config.get(
         "targets",
         "include",
-        new String[0],
-        "List files/folders included in the backup."
+        new String[]{"world"},
+        "List files/folders included in the backup.\n" +
+            "Wildcards (eg *.json) are not yet supported.\n" +
+            "(default: world)"
     );
 
     backupExcludes = config.get(
         "targets",
         "exclude",
         new String[0],
-        "List files/folders excluded from files/folders included previously."
+        "List files/folders excluded from files/folders included previously. If a\n" +
+            "folder is excluded, all of its children are implicitly excluded as well.\n" +
+            "Wildcards (eg *.lck) are not yet supported.\n" +
+            "(default empty)"
     );
 
 
@@ -74,14 +79,16 @@ public class BackupConfiguration {
         "notifyOps",
         true,
         "If set to true, will notify any server ops online when a backup is taken.\n" +
-            "This setting is ignored if notifyAll is true."
+            "This setting is ignored if notifyAll is true.\n" +
+            "(default: true)"
     );
 
     notifyAll = config.get(
         Configuration.CATEGORY_GENERAL,
         "notifyAll",
         false,
-        "If set to true, will notify all online players when a backup is taken."
+        "If set to true, will notify all online players when a backup is taken.\n" +
+            "(default: false)"
     );
 
     if (config.hasChanged()) {
