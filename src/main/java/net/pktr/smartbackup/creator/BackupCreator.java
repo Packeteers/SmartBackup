@@ -26,6 +26,7 @@ import net.minecraft.world.MinecraftException;
 import net.minecraft.world.WorldServer;
 import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -105,7 +106,7 @@ public abstract class BackupCreator extends Thread {
    *
    * @throws InterruptedException The backup was interrupted.
    */
-  protected abstract void createBackup() throws InterruptedException;
+  protected abstract void createBackup() throws InterruptedException, IOException;
 
   /**
    * Returns a string name for the type of backup being created.
@@ -291,10 +292,7 @@ public abstract class BackupCreator extends Thread {
       return;
     }
 
-    String[] backupIncludes = config.getBackupIncludes();
-    String[] backupExcludes = config.getBackupExcludes();
-
-    if (backupIncludes.length == 0) {
+    if (config.getBackupIncludes().length == 0) {
       setWorldSaving(savingWasEnabled);
 
       // I might want to use a better error class here
@@ -306,10 +304,7 @@ public abstract class BackupCreator extends Thread {
       return;
     }
 
-    // TODO: Compile a list of files to backup from backupIncludes and backupExcludes
-
     try {
-      // TODO: Pass list of files to createBackup method
       createBackup();
     } catch (InterruptedException e) {
       setWorldSaving(savingWasEnabled);
@@ -319,6 +314,19 @@ public abstract class BackupCreator extends Thread {
       messenger.info(
           requester,
           "The " + getBackupType() + " was interrupted. Any temporary backup files will be deleted."
+      );
+
+      return;
+    } catch (IOException exception) {
+      setWorldSaving(savingWasEnabled);
+
+      error = exception;
+      setStatus(BackupStatus.FAILED);
+
+      messenger.error(
+          requester,
+          "The " + getBackupType() + " failed with an IO error: " + exception.getMessage(),
+          exception
       );
 
       return;

@@ -18,6 +18,22 @@ package net.pktr.smartbackup.creator;
 
 import net.minecraft.command.ICommandSender;
 
+import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.TimeZone;
+
 /**
  * Handles creation of snapshots.
  *
@@ -26,6 +42,11 @@ import net.minecraft.command.ICommandSender;
  * backup.</p>
  */
 public class SnapshotCreator extends BackupCreator {
+  /** ArrayList loaded from config file of files/folders to leave out */
+  private ArrayList<String> backupExcludes;
+  /** Where to output the snapshot to */
+  private Path snapshotOutput;
+
   /**
    * Sets up a snapshot creation thread.
    *
@@ -37,17 +58,70 @@ public class SnapshotCreator extends BackupCreator {
     this.setName("Snapshot Thread");
   }
 
+  /** Provides methods to use with {@link Files#walkFileTree} for snapshots */
+  private class SnapshotVisitor implements FileVisitor<Path> {
+    @Override
+    public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes attr)
+        throws IOException {
+      // Ignore the whole directory if it's in the ignore list
+      if (backupExcludes.contains(path.toString())) {
+        return FileVisitResult.SKIP_SUBTREE;
+      }
+
+      Files.createDirectories(snapshotOutput.resolve(path));
+
+      return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult visitFile(Path path, BasicFileAttributes attr) throws IOException {
+      // Continue without doing anything with the file if it's in the ignore list
+      if (backupExcludes.contains(path.toString())) {
+        return FileVisitResult.CONTINUE;
+      }
+
+      // TODO Fancy stuff with dedupe/links
+
+      return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult visitFileFailed(Path path, IOException exception) throws IOException {
+      throw exception;
+    }
+
+    @Override
+    public FileVisitResult postVisitDirectory(Path path, IOException exception) throws IOException {
+      return FileVisitResult.CONTINUE;
+    }
+  }
+
   /** {@inheritDoc} */
   @Override
   public String getBackupType() {
     return "snapshot";
   }
 
-  /** Creates a snapshot. */
+  /** {@inheritDoc} */
   @Override
-  protected void createBackup() throws InterruptedException {
-    // TODO: Create snapshot
-    // Fake work
-    sleep(10000);
+  protected void createBackup() throws InterruptedException, IOException {
+    SimpleDateFormat rfc8601Formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH_mm_ss'Z'");
+    rfc8601Formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+    snapshotOutput = Paths.get(config.getBackupOutputDir(), rfc8601Formatter.format(new Date()));
+
+    if (Files.exists(snapshotOutput)) {
+      throw new FileAlreadyExistsException("Backup output directory already exists: " +
+          snapshotOutput.toString());
+    }
+
+    Files.createDirectories(snapshotOutput);
+
+    backupExcludes = new ArrayList<>(Arrays.asList(config.getBackupExcludes()));
+
+    for (String file : config.getBackupIncludes()) {
+      Files.walkFileTree(Paths.get(file), EnumSet.allOf(FileVisitOption.class),
+          Integer.MAX_VALUE, new SnapshotVisitor());
+    }
   }
 }
