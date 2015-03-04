@@ -27,6 +27,7 @@ import java.util.Arrays;
 public class BackupConfiguration {
   private Logger logger;
   private Configuration config;
+  private Property backupOutputDir;
   private Property backupIncludes;
   private Property backupExcludes;
   private Property notifyOps;
@@ -91,6 +92,14 @@ public class BackupConfiguration {
             "(default: false)"
     );
 
+    backupOutputDir = config.get(
+        Configuration.CATEGORY_GENERAL,
+        "backupOutputDir",
+        "backups",
+        "Folder (relative to server root) to output backups into. Created if it does not exist.\n" +
+            "(default: backups)"
+    );
+
     if (config.hasChanged()) {
       logger.info("Configuration updated with (at least one) default(s). If this is the first " +
           "time SmartBackup has been run or if you have updated SmartBackup, this is expected.");
@@ -133,6 +142,25 @@ public class BackupConfiguration {
    */
   public void setNotifyOps(boolean setting) {
     notifyOps.set(setting);
+    config.save();
+  }
+
+  /**
+   * Gets the folder that backups are written to.
+   *
+   * @return {@code String} to write backups to.
+   */
+  public String getBackupOutputDir() {
+    return backupOutputDir.getString();
+  }
+
+  /**
+   * Sets the folder to output backups to.
+   *
+   * @param dir Where to output backups.
+   */
+  public void setBackupOutputDir(String dir) {
+    backupOutputDir.set(dir);
     config.save();
   }
 
