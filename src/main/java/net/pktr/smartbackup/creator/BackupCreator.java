@@ -27,6 +27,7 @@ import net.minecraft.world.WorldServer;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.nio.channels.ClosedByInterruptException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
@@ -306,7 +307,7 @@ public abstract class BackupCreator extends Thread {
 
     try {
       createBackup();
-    } catch (InterruptedException e) {
+    } catch (InterruptedException | ClosedByInterruptException e) {
       setWorldSaving(savingWasEnabled);
 
       setStatus(BackupStatus.INTERRUPTED);

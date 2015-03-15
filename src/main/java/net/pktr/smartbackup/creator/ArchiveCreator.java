@@ -19,7 +19,11 @@ package net.pktr.smartbackup.creator;
 import net.minecraft.command.ICommandSender;
 
 import java.io.IOException;
+import java.net.URI;
+import java.nio.channels.ClosedByInterruptException;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -32,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimeZone;
 
 /**
@@ -45,6 +51,8 @@ public class ArchiveCreator extends BackupCreator {
   private ArrayList<String> backupExcludes;
   /** File to write the archive into */
   private Path archiveOutput;
+  /** FileSystem representing the zip file */
+  private FileSystem zip;
 
   /**
    * Sets up an archive creation thread.
@@ -66,6 +74,8 @@ public class ArchiveCreator extends BackupCreator {
         return FileVisitResult.SKIP_SUBTREE;
       }
 
+      Files.createDirectories(zip.getPath(path.toString()));
+
       return FileVisitResult.CONTINUE;
     }
 
@@ -76,7 +86,7 @@ public class ArchiveCreator extends BackupCreator {
         return FileVisitResult.CONTINUE;
       }
 
-      // TODO Add this file to the archive
+      Files.copy(path, zip.getPath(path.toString()));
 
       return FileVisitResult.CONTINUE;
     }
@@ -112,7 +122,17 @@ public class ArchiveCreator extends BackupCreator {
           archiveOutput.toString());
     }
 
-    // TODO Might need to ensure that the output dir exists before we try to write a file to it
+    Map<String, String> fsEnv = new HashMap<>();
+    fsEnv.put("create", "true");
+
+    if (!Files.exists(archiveOutput.getParent())) {
+      Files.createDirectories(archiveOutput.getParent());
+    }
+
+    zip = FileSystems.newFileSystem(
+        URI.create("jar:file:" + archiveOutput.toAbsolutePath().toString()),
+        fsEnv
+    );
 
     backupExcludes = new ArrayList<>(Arrays.asList(config.getBackupExcludes()));
 
@@ -120,5 +140,7 @@ public class ArchiveCreator extends BackupCreator {
       Files.walkFileTree(Paths.get(file), EnumSet.allOf(FileVisitOption.class),
           Integer.MAX_VALUE, new ArchiveVisitor());
     }
+
+    zip.close();
   }
 }
